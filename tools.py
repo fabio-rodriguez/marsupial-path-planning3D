@@ -1,9 +1,15 @@
+import math
 import matplotlib.pyplot as plt
 import numpy as np
 import pyvisgraph as vg
 
+from constants import *
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection   
 from scipy.spatial import ConvexHull
+
+
+def euclidian_distance(v1, v2):
+    return math.sqrt(sum([(x1 - x2)**2 for x1, x2 in zip(v1, v2)]))
 
 
 def make_visibility_graph(ground_obstacles):
@@ -14,10 +20,7 @@ def make_visibility_graph(ground_obstacles):
     return g.build(vertices)
 
 
-
-
-
-def plot_scenario(scenario, path):
+def plot_scenario(scenario, path=None):
     
     plot3D([
         {
@@ -31,7 +34,7 @@ def plot_scenario(scenario, path):
         scenario["ground_obstacles"]+scenario["aerial_obstacles"], path)
 
 
-def plot3D(points, obstacles, path_to_output):
+def plot3D(points, obstacles, path_to_output=None):
 
 
     # 8 points defining the cube corners
@@ -69,4 +72,18 @@ def plot3D(points, obstacles, path_to_output):
 
     plt.show()
 
+
+# TODO fix
+# def obstacles_within_circle(T, ground_obs, aerial_obs):
+    
+#     l, h, r = TETHER_LENGTH, MARSUPIAL_HEIGHT, UAV_RADIOUS
+#     l = 10
+#     Cx, Cy = T[:2]
+#     radio = math.sqrt(l**2 - (T[2]-h+r)**2)
+    
+#     # Add vertices in range 
+#     result_gobs = [go  for go in ground_obs if any(map(lambda v: euclidian_distance(v[:2], [Cx, Cy]) <= radio, go))] 
+#     result_aobs = [ao for ao in aerial_obs if any(map(lambda v: euclidian_distance(v[:2], [Cx, Cy]) <= radio, ao)) and any(map(lambda v: v[-1] < T[-1], ao))] 
+        
+#     return result_gobs, result_aobs
 
