@@ -16,7 +16,7 @@ def path_planning_smpp(S, T, ground_obs, aerial_obs, ground_vsgraph, p=5, q=5, k
     # plot3D([{"point":S, "label":"S", "color":"k"}, {"point":T, "label":"T", "color":"r"}], ground_obs + aerial_obs)
     
     # 2D visibility query funcion
-    cvis_points, min_tether_lengths = get_c_visible_points(T, ground_obs, aerial_obs,  p, q, k_length, k_collision)
+    cvisible_points = get_cvisible_points(T, ground_obs, aerial_obs,  p, q, k_length, k_collision)
 
     exit()
     # checkpoint

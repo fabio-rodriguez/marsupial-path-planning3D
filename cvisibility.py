@@ -3,7 +3,7 @@ import numpy as np
 from tools import *
 
 
-def get_c_visible_points(T, g_obs, a_obs, p, q, k_length, k_collision):
+def get_cvisible_points(T, g_obs, a_obs, p, q, k_length, k_collision):
     
     T_proj = np.array([T[0], T[1], HTOP])
     cradius = get_top_circ_radious(T)
@@ -14,6 +14,16 @@ def get_c_visible_points(T, g_obs, a_obs, p, q, k_length, k_collision):
     for vp in vplanes:
         tops = get_take_off_points(cradius, vp, q)
         # CHECKPOINT #  plot_vertical_plane(vp,T,tops) 
+
+        # ... rotate/project plane
+        # ... find nonpvisible intervals (left, center, right) 
+        # ... find pvisible tops 
+        # ... check cvisibility of feasible tops (find L)
+        # ... rotate/project feasible tops
+        # ... get ground points !!!
+        # ... append to tops3D the ground point the cvisible top and tether length (Pg, topPg, L)
+
+    return tops3D
 
     # T_proj = np.array(list(T[:2])+[0])
     # v1 = T-ground_point
