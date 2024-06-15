@@ -120,25 +120,25 @@ def plane_edges_collision_points_normal(plane_point, normal, edges):
     return intersections
 
 
-def plot_vertical_plane(plane, T):
+def plot_vertical_plane(plane, T, tops):
     
     title = round(math.degrees(plane["angle"]),2)
     coords = plane["coords"]
     gobs = plane["ground_obstacles"]
     aobs = plane["aerial_obstacles"]
 
-    plot2D(str(title), [{"point":T, "label":"T", "color":"r"}], gobs+aobs, coords)
+    plot2D(str(title), [{"point":T, "label":"T", "color":"r"}], gobs+aobs, tops, coords)
 
 
 
-def plot2D(title, points, obstacles, coords=None, path_to_output=None):
+def plot2D(title, points, obstacles, tops, coords=None, path_to_output=None):
 
 
     fig = plt.figure()
     ax = fig.add_subplot()
     
-    ax.set_xlim([0, 50])
-    ax.set_ylim([0, 20])
+    ax.set_xlim([-20, 100])
+    ax.set_ylim([0, 14])
 
     for pts in obstacles:
 
@@ -162,6 +162,11 @@ def plot2D(title, points, obstacles, coords=None, path_to_output=None):
         p,l,c =d["point"], d["label"], d["color"]
         p = (p[coords[0]], p[coords[1]])
         ax.plot(p[0], p[1], "o", color=c, label=l)
+
+    X_tops = [top[coords[0]] for top in tops]
+    Z_tops = [top[coords[1]] for top in tops]
+    ax.plot(X_tops, Z_tops, "o", color="b", label="tops")
+
 
     plt.legend()
     plt.title(title)

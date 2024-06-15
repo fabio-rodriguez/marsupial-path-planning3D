@@ -5,11 +5,15 @@ from tools import *
 
 def get_c_visible_points(T, g_obs, a_obs, p, q, k_length, k_collision):
     
-    
-    planes = get_vertical_planes(T, k_collision, g_obs, a_obs)
+    T_proj = np.array([T[0], T[1], HTOP])
+    cradius = get_top_circ_radious(T)
 
-    for p in planes:
-        plot_vertical_plane(p, T)
+    vplanes = get_vertical_planes(T, T_proj, cradius, p, g_obs, a_obs)
+
+    tops3D = []
+    for vp in vplanes:
+        tops = get_take_off_points(cradius, vp, q)
+        # CHECKPOINT #  plot_vertical_plane(vp,T,tops) 
 
     # T_proj = np.array(list(T[:2])+[0])
     # v1 = T-ground_point
@@ -73,23 +77,22 @@ def get_c_visible_points(T, g_obs, a_obs, p, q, k_length, k_collision):
     # return result
 
 
-def get_vertical_planes(T, p, ground_obstacles, aerial_obstacles):
+def get_vertical_planes(T, T_proj, cradius, p, ground_obstacles, aerial_obstacles):
 
-    T_proj = np.array([T[0], T[1], 0])
     Cx, Cy, _ = T_proj
-    cradious = get_top_circ_radious(T)
     planes = []
     
     for i in range(p):
-        border_point = np.array([math.cos(math.pi/p*i) + Cx, math.sin(math.pi/p*i) + Cy, 0])
+        border_point = np.array([math.cos(math.pi/p*i) + Cx, math.sin(math.pi/p*i) + Cy, HTOP])
         v = normalize(border_point - T_proj)
-        Q = T_proj - v*cradious
+        Q = T_proj - v*cradius
         coords = get_plane_coords(Q, T) # find the best coordinates to represent the vertical plane (avoiding null coordinates problems)
 
         vplane_gobs = intersect_obstacles_and_vertical_plane(border_point, T, T_proj, ground_obstacles)
         vplane_aobs = intersect_obstacles_and_vertical_plane(border_point, T, T_proj, aerial_obstacles)
         planes.append({
             "Q": Q,
+            "top_vector": v,
             "angle": math.pi/p*i,
             "coords": coords,
             "ground_obstacles": vplane_gobs,
@@ -101,6 +104,16 @@ def get_vertical_planes(T, p, ground_obstacles, aerial_obstacles):
 
 def get_plane_coords(X, T):
     return [0,2] if abs(X[0]-T[0]) > abs(X[1]-T[1]) else [1,2] 
+
+
+def get_take_off_points(cradius, vertical_plane, q):
+
+    Q = vertical_plane["Q"]
+    v = vertical_plane["top_vector"]
+    step = 2*cradius/(q-1)
+
+    return [Q + step*i*v for i in range(q)]
+        
 
 
 def generate_ground_points_heuristic(T, ground_obs, aerial_obs, planes_number=100, gpoints_number=100, threshold=10**-4):

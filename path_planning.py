@@ -4,7 +4,7 @@ from tools import *
 from cvisibility import *
 
 
-def path_planning_smpp(S, T, aerial_obs, ground_obs, ground_vsgraph, p=5, q=5, k_length=10, k_collision=10):
+def path_planning_smpp(S, T, ground_obs, aerial_obs, ground_vsgraph, p=5, q=5, k_length=10, k_collision=10):
     """
         Planning algorithm based on Dijkstra apprach to reach B with the aerial vehicle starting from A with the ground vehicle
 
@@ -16,7 +16,7 @@ def path_planning_smpp(S, T, aerial_obs, ground_obs, ground_vsgraph, p=5, q=5, k
     # plot3D([{"point":S, "label":"S", "color":"k"}, {"point":T, "label":"T", "color":"r"}], ground_obs + aerial_obs)
     
     # 2D visibility query funcion
-    cvis_points, min_tether_lengths = get_c_visible_points(T, ground_obs, aerial_obs, p, q, k_length, k_collision)
+    cvis_points, min_tether_lengths = get_c_visible_points(T, ground_obs, aerial_obs,  p, q, k_length, k_collision)
 
     exit()
     # checkpoint
@@ -50,15 +50,15 @@ if __name__ == "__main__":
     with open(path, "rb") as f:
         s = pkl.loads(f.read())
 
-    p=5 
-    q=5
+    p=10 
+    q=10 # should be even
     k_length=10
     k_collision=10
     path_planning_smpp(
         s["S"], 
         s["T"], 
-        s["aerial_obstacles"], 
         s["ground_obstacles"], 
+        s["aerial_obstacles"], 
         s["ground_vis_graph"],
         p, q, k_length, k_collision)
 
