@@ -11,16 +11,14 @@ def path_planning_smpp(S, T, aerial_obs, ground_obs, ground_vsgraph, p=5, q=5, k
         The visibility graph can be partially pre-computed
     """
 
-    # Checks which of the obstacles lie within the 3D visibility area    
-    gobs_in_C, aobs_in_C = obstacles_within_circle(T, ground_obs, aerial_obs)
-
-    plot3D([{"point":S, "label":"S", "color":"k"}, {"point":T, "label":"T", "color":"r"}], ground_obs + aerial_obs)
-
-    # checkpoint
-
+    # TODO: Checks which of the obstacles lie within the 3D visibility area    
+    # gobs_in_C, aobs_in_C = obstacles_within_circle(T, ground_obs, aerial_obs)
+    # plot3D([{"point":S, "label":"S", "color":"k"}, {"point":T, "label":"T", "color":"r"}], ground_obs + aerial_obs)
+    
     # 2D visibility query funcion
-    cvis_points, min_tether_lengths = get_c_visible_points(T, gobs_in_C, aobs_in_C, p, q, k_length, k_collision)
+    cvis_points, min_tether_lengths = get_c_visible_points(T, ground_obs, aerial_obs, p, q, k_length, k_collision)
 
+    exit()
     # checkpoint
 
     # Insert S and the catenary visible points into the visibility graph 
