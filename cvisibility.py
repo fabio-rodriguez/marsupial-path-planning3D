@@ -15,7 +15,7 @@ def get_cvisible_points(T, g_obs, a_obs, p, q, k_length, k_collision):
     tops3D = []
     for vp in vplanes:
         tops = get_take_off_points(cradius, vp, q)
-        cvis_tops = get_cvisible_tops(vp, tops, T, g_obs, a_obs)
+        cvis_tops = get_cvisible_tops(vp, tops, T)
         
 
 
@@ -131,68 +131,70 @@ def get_take_off_points(cradius, vertical_plane, q):
     return [Q + step*i*v for i in range(q)]
         
 
-def generate_ground_points_heuristic(T, ground_obs, aerial_obs, planes_number=100, gpoints_number=100, threshold=10**-4):
-
-    # Removing far obstacles
-    obstacles = obstacles_in_range(ground_obs, T) + obstacles_in_range(aerial_obs, T) 
-    ground_points = []
-
-    Cx, Cy = T[:2]
-    T_projection = np.array([Cx, Cy, 0])
-    radio = math.sqrt(CABLE_LENGTH**2 - (T[2]-(UGV_HEIGHT+UAV_RADIO))**2) + UGV_RADIO
-    for p in range(planes_number):
-        border_point = np.array([math.cos(math.pi/planes_number*p) + Cx, math.sin(math.pi/planes_number*p) + Cy, 0])
-        v = normalize(border_point - T_projection)
-        X1 = T_projection - v*radio
-        coords = get_coords(X1, T)
-
-        vertical_obstacles = intersect_obstacles_and_vertical_plane(border_point, T, T_projection, obstacles)
-        intervals = obstacles_shadow(X1, T, vertical_obstacles, coords)
-
-        # # PLOT VERTICAL OBSTACLES
-        # for obs in vertical_obstacles:
-        #     for i, vi in enumerate(obs[:-1]):
-        #         for j in range(i+1, len(obs)):
-        #             plt.plot([vi[coords[0]], obs[j][coords[0]]], [vi[coords[1]], obs[j][coords[1]]], '-k')
-        # plt.plot([T[coords[0]]], [T[coords[1]]], 'or')
-        # plt.plot([X1[coords[0]]], [X1[coords[1]]], 'or')
-        # plt.plot([X1[coords[0]]+2*abs(T[coords[0]]-X1[coords[0]])], [X1[coords[1]]], 'or')
-        # for i in intervals:
-        #     plt.plot([i[0], i[1]], [UAV_RADIO+UGV_HEIGHT, UAV_RADIO+UGV_HEIGHT])
-        
-        is_contained = lambda interval, top_point : interval[0]-threshold <= top_point[0] <= interval[1]+threshold
-        step = 2*radio/(gpoints_number)
-        for i in range(gpoints_number):
-            Xi = X1 + step*i*v
-            p = top(Xi, T)
-            if euclidian_distance(p, T_projection) <= UGV_RADIO:
-                continue
-            
-            contained = False
-            for interval in intervals:
-                if is_contained(interval, p[coords]):
-                    contained = True
-                    break
-                
-            if not contained:
-                # plt.plot([p[coords][0]], [p[coords][1]], '.b')
-                ground_points.append({"take-off": Xi, "length": euclidian_distance(Xi, T)})
-            
-        # plt.show()
-    
-    return ground_points
-
-
-def get_cvisible_tops(vplane, tops, T, ground_obs, aerial_obs):
+def get_cvisible_tops(vplane, tops, T):
     
     c0, c1 = vplane["coords"]
     T_proj = (T[c0], T[c1])
-    tops_proj = [[(top[c0], top[c1])] for top in tops]
-    gobs_proj = [[(v[c0], v[c1]) for v in gob] for gob in ground_obs]
-    aobs_proj = [[(v[c0], v[c1]) for v in aob] for aob in aerial_obs]
+    tops_proj = [[np.array((top[c0], top[c1]))] for top in tops]
+    
+    obs_proj = []
+    for obs in vplane["ground_obstacles"]+vplane["aerial_obstacles"]:
+        obs = [np.array((vertex[c0], vertex[c1])) for vertex in obs]
+        gch = ConvexHull(obs)
+        obs_proj.append(gch.points[gch.vertices])
 
-    vertices_lists = [[T_proj]] + tops_proj + gobs_proj + aobs_proj
+    vertices_lists = [[T_proj]] + tops_proj + obs_proj
     visgraph = make_visibility_graph(vertices_lists)
+    # vertices_lists = gobs_proj + aobs_proj
+    # c = 0
+    # for i in range(len(vertices_lists)):
+    #     while True:
+    #         try:
+    #             visgraph = make_visibility_graph(vertices_lists[:i+1])
+
+    #             plot_visibility_graph(visgraph, vertices_lists[:i+1])
+
+
+    #             break
+    #         except:
+
+    #             fig = plt.figure()
+                
+    #             for vlist in vertices_lists[:i+1]:
+    #                 for v1 in vlist: 
+    #                     for v2 in vlist: 
+    #                         plt.plot([v1[0], v2[0]], [v1[1], v2[1]], "-k")
+                
+    #             plt.title("previous")
+    #             plt.show()
+    #             plt.close()
+
+    #             print(vertices_lists[i])
+    #             # vertices_lists[i] = [[v + EPSILON for v in vertices] for vertices in vertices_lists[i]]
+    #             ch = ConvexHull(vertices_lists[i])
+    #             # vertices_lists[i] = [(35,5), (37,5), (35,6.02), (37,6.02)]
+    #             vertices_lists[i] = ch.points[ch.vertices] 
+    #             print(vertices_lists[i])
+    #             print()
+
+    #             fig = plt.figure()
+    #             for vlist in vertices_lists[:i+1]:
+    #                 for v1 in vlist: 
+    #                     for v2 in vlist: 
+    #                         plt.plot([v1[0], v2[0]], [v1[1], v2[1]], "-k")
+                
+    #             plt.title("after")
+    #             plt.show()
+    #             plt.close()
+
+
+    #             # if c:
+    #             #     exit()
+    #             # c+=1
+
+                
+
+    plot_visibility_graph(visgraph, obs_proj)
 
 
 
