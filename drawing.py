@@ -59,8 +59,6 @@ def plot3D(points, obstacles, path_to_output=None):
     plt.show()
 
 
-
-
 def plot_vertical_plane(plane, T, tops):
     
     title = round(math.degrees(plane["angle"]),2)
@@ -69,7 +67,6 @@ def plot_vertical_plane(plane, T, tops):
     aobs = plane["aerial_obstacles"]
 
     plot2D(str(title), [{"point":T, "label":"T", "color":"r"}], gobs+aobs, tops, coords)
-
 
 
 def plot2D(title, points, obstacles, tops, coords=None, path_to_output=None):
@@ -116,12 +113,19 @@ def plot2D(title, points, obstacles, tops, coords=None, path_to_output=None):
     plt.close()
 
 
-def plot_visibility_graph(vsgraph, init_points, path_to_image=None):
+def plot_visibility_graph(vsgraph, obstacles, path_to_image=None):
      
-    for vertices in vsgraph.vertices:
-        vs = [(point.x, point.y) for point in vertices] + [(vertices[0].x, vertices[0].y)]
-        X, Y = zip(*vs)
-        plt.plot(X, Y, "-r")
+    for vertex in  vsgraph.graph.get_points():
+        for visible_point in vsgraph.find_visible(vertex):
+            X, Y = [vertex.x, visible_point.x], [vertex.y, visible_point.y]
+            plt.plot(X, Y, "-r")
+
+    for o in obstacles:
+        for v1 in o:
+            for v2 in o:
+                X, Y = [v1[0], v2[0]], [v1[1], v2[1]]
+                plt.plot(X, Y, "-k")
+    
     
     if path_to_image != None:
         plt.savefig(path_to_image)

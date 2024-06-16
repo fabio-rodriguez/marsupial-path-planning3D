@@ -61,14 +61,17 @@ def generate_S1(path):
 
     S = (20,65,0)
     T = (42,40,8)
+    visgraph = make_visibility_graph(gobs)
+    plot_visibility_graph(visgraph, gobs)
 
     scenario = {
         "S": S,
         "T": T,
         "ground_obstacles": gobs,
         "aerial_obstacles": aobs,
-        "ground_vis_graph": make_visibility_graph(gobs),
+        "ground_vis_graph": visgraph,
     }
+
 
     with open(path, "wb") as f:
         f.write(pkl.dumps(scenario))
