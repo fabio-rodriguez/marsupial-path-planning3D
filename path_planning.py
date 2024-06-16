@@ -1,7 +1,8 @@
 import pickle as pkl
 
-from tools import *
 from cvisibility import *
+from drawing import *
+from tools import *
 
 
 def path_planning_smpp(S, T, ground_obs, aerial_obs, ground_vsgraph, p=5, q=5, k_length=10, k_collision=10):

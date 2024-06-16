@@ -1,5 +1,7 @@
 import numpy as np
+import pyvisgraph as vg
 
+from drawing import *
 from tools import *
 
 
@@ -13,6 +15,10 @@ def get_cvisible_points(T, g_obs, a_obs, p, q, k_length, k_collision):
     tops3D = []
     for vp in vplanes:
         tops = get_take_off_points(cradius, vp, q)
+        cvis_tops = get_cvisible_tops(vp, tops, T, g_obs, a_obs)
+        
+
+
         # CHECKPOINT #  plot_vertical_plane(vp,T,tops) 
 
         # ... rotate/project plane
@@ -125,7 +131,6 @@ def get_take_off_points(cradius, vertical_plane, q):
     return [Q + step*i*v for i in range(q)]
         
 
-
 def generate_ground_points_heuristic(T, ground_obs, aerial_obs, planes_number=100, gpoints_number=100, threshold=10**-4):
 
     # Removing far obstacles
@@ -176,4 +181,18 @@ def generate_ground_points_heuristic(T, ground_obs, aerial_obs, planes_number=10
         # plt.show()
     
     return ground_points
+
+
+def get_cvisible_tops(vplane, tops, T, ground_obs, aerial_obs):
+    
+    c0, c1 = vplane["coords"]
+    T_proj = (T[c0], T[c1])
+    tops_proj = [[(top[c0], top[c1])] for top in tops]
+    gobs_proj = [[(v[c0], v[c1]) for v in gob] for gob in ground_obs]
+    aobs_proj = [[(v[c0], v[c1]) for v in aob] for aob in aerial_obs]
+
+    vertices_lists = [[T_proj]] + tops_proj + gobs_proj + aobs_proj
+    visgraph = make_visibility_graph(vertices_lists)
+
+
 
