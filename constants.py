@@ -8,3 +8,5 @@ assert MARSUPIAL_HEIGHT > UAV_RADIUS, f"The UAV and the UGV are contained within
 TETHER_LENGTH = 50
 
 HTOP = MARSUPIAL_HEIGHT-UAV_RADIUS
+
+EPSILON = 10**-6
