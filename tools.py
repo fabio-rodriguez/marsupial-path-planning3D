@@ -3,6 +3,7 @@ import numpy as np
 import pyvisgraph as vg
 
 from constants import *
+from numpy.linalg import lstsq
 from scipy.spatial import ConvexHull
 from trimesh import intersections as tint
 
@@ -66,3 +67,10 @@ def plane_edges_collision_points_normal(plane_point, normal, edges):
     return intersections
 
 
+def lineq(p1, p2):
+
+    points = [(1,5),(3,4)]
+    x_coords, y_coords = zip(*points)
+    A = np.vstack([x_coords, np.ones(len(x_coords))]).T
+    m, c = lstsq(A, y_coords)[0]
+    return lambda x: m*x + c

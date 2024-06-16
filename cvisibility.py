@@ -145,56 +145,7 @@ def get_cvisible_tops(vplane, tops, T):
 
     vertices_lists = [[T_proj]] + tops_proj + obs_proj
     visgraph = make_visibility_graph(vertices_lists)
-    # vertices_lists = gobs_proj + aobs_proj
-    # c = 0
-    # for i in range(len(vertices_lists)):
-    #     while True:
-    #         try:
-    #             visgraph = make_visibility_graph(vertices_lists[:i+1])
 
-    #             plot_visibility_graph(visgraph, vertices_lists[:i+1])
-
-
-    #             break
-    #         except:
-
-    #             fig = plt.figure()
-                
-    #             for vlist in vertices_lists[:i+1]:
-    #                 for v1 in vlist: 
-    #                     for v2 in vlist: 
-    #                         plt.plot([v1[0], v2[0]], [v1[1], v2[1]], "-k")
-                
-    #             plt.title("previous")
-    #             plt.show()
-    #             plt.close()
-
-    #             print(vertices_lists[i])
-    #             # vertices_lists[i] = [[v + EPSILON for v in vertices] for vertices in vertices_lists[i]]
-    #             ch = ConvexHull(vertices_lists[i])
-    #             # vertices_lists[i] = [(35,5), (37,5), (35,6.02), (37,6.02)]
-    #             vertices_lists[i] = ch.points[ch.vertices] 
-    #             print(vertices_lists[i])
-    #             print()
-
-    #             fig = plt.figure()
-    #             for vlist in vertices_lists[:i+1]:
-    #                 for v1 in vlist: 
-    #                     for v2 in vlist: 
-    #                         plt.plot([v1[0], v2[0]], [v1[1], v2[1]], "-k")
-                
-    #             plt.title("after")
-    #             plt.show()
-    #             plt.close()
-
-
-    #             # if c:
-    #             #     exit()
-    #             # c+=1
-
-                
-
-    plot_visibility_graph(visgraph, obs_proj)
-
+    # CHECKPOINT # plot_visibility_graph(visgraph, obs_proj)
 
 
