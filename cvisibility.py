@@ -148,9 +148,8 @@ def get_cvisible_tops(vplane, tops, T):
 
     # CHECKPOINT # plot_visibility_graph(visgraph, obs_proj)
 
-    weights, previous = pvisibility_2D(visgraph, T_proj, TETHER_LENGTH)
+    weights, previous = pvisibility_2D(visgraph, T_proj, TETHER_LENGTH, obs_proj)
 
-    # CHECKPOINT # 
-    plot_polygonal_paths(weights, T, obs_proj)
+    # CHECKPOINT # plot_polygonal_paths(weights, previous, [top[0] for top in tops_proj], T_proj, obs_proj)
 
 

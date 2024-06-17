@@ -1,9 +1,12 @@
 import math
 import matplotlib.pyplot as plt
 import numpy as np
+import pyvisgraph as vg
 
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection   
 from scipy.spatial import ConvexHull
+
+
 
 
 def plot_scenario(scenario, path=None):
@@ -134,5 +137,33 @@ def plot_visibility_graph(vsgraph, obstacles, path_to_image=None):
     plt.close()
 
 
-def plot_polygonal_paths(weights, previous, T, obs_proj):
-    pass
+def plot_polygonal_paths(weights, previous, tops, T, obstacles):
+    
+    T = vg.Point(*T)
+    plt.plot([p[0] for p in tops], [p[1] for p in tops], "or")
+    plt.plot([T.x], [T.y], "or")
+
+    for top in tops:
+        vtop = vg.Point(*top)
+        if vtop in weights:
+            polygonal = [vtop]
+            while True:
+                prev = previous[polygonal[-1]]
+                polygonal.append(prev)
+                if prev == T:
+                    break
+            
+            plt.plot([p.x for p in polygonal], [p.y for p in polygonal], "-b")
+
+    
+    for o in obstacles:
+        for v1 in o:
+            for v2 in o:
+                X, Y = [v1[0], v2[0]], [v1[1], v2[1]]
+                plt.plot(X, Y, "-k")
+    
+
+    plt.show()
+
+
+

@@ -5,7 +5,7 @@ from drawing import *
 from pyvisgraph.visible_vertices import visible_vertices
 from tools import * 
 
-def pvisibility_2D(graph, T, L):
+def pvisibility_2D(graph, T, L, obs):
 
     target = vg.Point(*T)
     current_nodes = [target]
@@ -15,15 +15,16 @@ def pvisibility_2D(graph, T, L):
         current = current_nodes.pop(0)
         visible_points = visible_vertices(current, graph.graph)
         for v in visible_points:
-            if current == target or (current.y < target.y and is_icpc(v, current, previous[current])):
-                current_nodes.append(v)
-                new_weight = vpoint_euclidian_distance(v, current) + weights[current]
-                if new_weight <= L:
-                    weights[v] = new_weight 
-                    previous[v] = current
+            if not v in weights:
+                if v.y <= current.y and (current == target or is_icpc(v, current, previous[current])):
+                    current_nodes.append(v)
+                    new_weight = vpoint_euclidian_distance(v, current) + weights[current]
+                    if new_weight <= L:
+                        weights[v] = new_weight 
+                        previous[v] = current
 
         current_nodes.sort(key=lambda x: x.y, reverse=True)
-        
+
     return weights, previous         
 
 
