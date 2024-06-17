@@ -132,3 +132,7 @@ def plot_visibility_graph(vsgraph, obstacles, path_to_image=None):
     
     plt.show()
     plt.close()
+
+
+def plot_polygonal_paths(weights, previous, T, obs_proj):
+    pass

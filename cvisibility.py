@@ -1,8 +1,8 @@
 import numpy as np
-import pyvisgraph as vg
 
 from drawing import *
 from tools import *
+from planners import *
 
 
 def get_cvisible_points(T, g_obs, a_obs, p, q, k_length, k_collision):
@@ -147,5 +147,10 @@ def get_cvisible_tops(vplane, tops, T):
     visgraph = make_visibility_graph(vertices_lists)
 
     # CHECKPOINT # plot_visibility_graph(visgraph, obs_proj)
+
+    weights, previous = pvisibility_2D(visgraph, T_proj, TETHER_LENGTH)
+
+    # CHECKPOINT # 
+    plot_polygonal_paths(weights, T, obs_proj)
 
 

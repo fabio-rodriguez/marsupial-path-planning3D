@@ -19,6 +19,10 @@ def euclidian_distance(x1, x2):
     return np.linalg.norm(x1-x2)
 
 
+def vpoint_euclidian_distance(v1, v2):
+    return np.linalg.norm(np.array([v1.x, v1.y])-np.array([v2.x, v2.y]))
+
+
 def make_visibility_graph(vertices_lists):
 
     vertices = [[vg.Point(*vertex[:2]) for vertex in vlist] for vlist in vertices_lists]

@@ -1,29 +1,35 @@
+import pyvisgraph as vg
 import sys
+
+from drawing import *
+from pyvisgraph.visible_vertices import visible_vertices
 from tools import * 
 
-def pvisibility_2D(graph, T):
+def pvisibility_2D(graph, T, L):
 
-    current_nodes = [T]
-    weights = {T:0}
-    previous = {T:None}
-    while current_nodes[0][-1] > 0:
+    target = vg.Point(*T)
+    current_nodes = [target]
+    weights = {target:0}
+    previous = {target:None}
+    while len(current_nodes)!=0 and current_nodes[0].y > 0:
         current = current_nodes.pop(0)
-        edges = graph[T]
-        for e in edges:
-            v = e.get_adjacent(current)
-            if current == T or (current[-1] < T[-1] and is_icpc(v, current, previous[current])):
+        visible_points = visible_vertices(current, graph.graph)
+        for v in visible_points:
+            if current == target or (current.y < target.y and is_icpc(v, current, previous[current])):
                 current_nodes.append(v)
-                weights[v] = euclidian_distance(v, current) + weights[current]
-                previous[v] = current
+                new_weight = vpoint_euclidian_distance(v, current) + weights[current]
+                if new_weight <= L:
+                    weights[v] = new_weight 
+                    previous[v] = current
 
-        current_nodes.sort(key=lambda x: x[-1], reverse=True)
+        current_nodes.sort(key=lambda x: x.y, reverse=True)
         
     return weights, previous         
 
 
 def is_icpc(v1,v2,v3):
-    r = lineq(v1, v3)
-    return (v1[0] <= v2[0] <= v3[0] or v1[0] >= v2[0] >= v3[0]) and r(v2[0]) >= v2[1]
+    r = lineq(np.array([v1.x, v1.y]), np.array([v3.x, v3.y]))
+    return (v1.x <= v2.x <= v3.x or v1.x >= v2.x >= v3.x) and r(v2.x) >= v2.y
 
 
 

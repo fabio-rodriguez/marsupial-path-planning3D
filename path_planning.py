@@ -58,7 +58,7 @@ if __name__ == "__main__":
     path_planning_smpp(
         s["S"], 
         s["T"], 
-        s["ground_obstacles"], 
+        s["ground_obstacles"],
         s["aerial_obstacles"], 
         s["ground_vis_graph"],
         p, q, k_length, k_collision)
