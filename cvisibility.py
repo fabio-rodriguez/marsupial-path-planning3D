@@ -6,29 +6,20 @@ from tools import *
 from planners import *
 
 
-def get_cvisible_points(T, g_obs, a_obs, p, q, k_length, k_collision):
+def get_cvisible_tops(T, g_obs, a_obs, p, q, k_length, k_collision):
     
     T_proj = np.array([T[0], T[1], HTOP])
     cradius = get_top_circ_radious(T)
 
     vplanes = get_vertical_planes(T, T_proj, cradius, p, g_obs, a_obs)
 
-    tops3D = []
+    tops3D = {}
     for vp in vplanes:
         tops = get_take_off_points(cradius, vp, q)
-        cvis_tops = get_cvisible_tops(vp, tops, T, k_length, k_collision)
-        
-
-
         # CHECKPOINT #  plot_vertical_plane(vp,T,tops) 
 
-        # ... rotate/project plane
-        # ... find nonpvisible intervals (left, center, right) 
-        # ... find pvisible tops 
-        # ... check cvisibility of feasible tops (find L)
-        # ... rotate/project feasible tops
-        # ... get ground points !!!
-        # ... append to tops3D the ground point the cvisible top and tether length (Pg, topPg, L)
+        cvis_tops = get_cvisible_tops2D(vp, tops, T, k_length, k_collision)
+        tops3D.update(cvis_tops)        
 
     return tops3D
 
@@ -71,7 +62,7 @@ def get_take_off_points(cradius, vertical_plane, q):
     return [Q + step*i*v for i in range(q)]
         
 
-def get_cvisible_tops(vplane, tops, T, k_length, k_collision):
+def get_cvisible_tops2D(vplane, tops, T, k_length, k_collision):
     
     c0, c1 = vplane["coords"]
     T_proj = (T[c0], T[c1])
@@ -102,8 +93,7 @@ def get_cvisible_tops(vplane, tops, T, k_length, k_collision):
             cat_points, length = get_min_catenary(top, T, obstacles, minL, TETHER_LENGTH, k_length, k_collision)
             # CHECKPOINT #  plot_3Dtether(top, T, cat_points, obstacles)
 
+            if length > 0:
+                tops_cat[tuple(top)] = {"length": length, "tether": cat_points} 
             
-            
-
-
     return tops_cat

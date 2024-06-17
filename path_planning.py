@@ -11,12 +11,7 @@ def path_planning_smpp(S, T, ground_obs, aerial_obs, ground_vsgraph, p=5, q=5, k
 
         The visibility graph can be partially pre-computed
     """
-
-    # TODO: Checks which of the obstacles lie within the 3D visibility area    
-    # gobs_in_C, aobs_in_C = obstacles_within_circle(T, ground_obs, aerial_obs)
-    # plot3D([{"point":S, "label":"S", "color":"k"}, {"point":T, "label":"T", "color":"r"}], ground_obs + aerial_obs)
-    
-    # 2D visibility query funcion
+        
     cvisible_points = get_cvisible_points(T, ground_obs, aerial_obs,  p, q, k_length, k_collision)
 
     exit()
