@@ -40,10 +40,6 @@ def path_planning_smpp(S, T, ground_obs, aerial_obs, ground_vsgraph, p=5, q=5, k
 
 
 
-
-
-
-
 if __name__ == "__main__":
     
     path = "scenarios/S1.pkl"
@@ -52,9 +48,9 @@ if __name__ == "__main__":
         s = pkl.loads(f.read())
 
     p=10 
-    q=10 # should be even
-    k_length=10
-    k_collision=10
+    q=20 # should be even
+    k_length=100
+    k_collision=100
     path_planning_smpp(
         s["S"], 
         s["T"], 

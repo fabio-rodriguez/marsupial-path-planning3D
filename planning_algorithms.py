@@ -13,12 +13,12 @@ from pyvisgraph.visible_vertices import visible_vertices
 from scipy.spatial import ConvexHull
 from sklearn.preprocessing import normalize
 
+from cat import *
 from constants import *
 from decision_problem.Tests3D import main as dp3D
 from tools import *
 from obstacles.intersection3D import *
 from obstacles.minkowski import minkowski_distance
-
 
 PLANES_2D = {}
 

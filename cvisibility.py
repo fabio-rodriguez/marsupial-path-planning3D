@@ -1,5 +1,6 @@
 import numpy as np
 
+from cat import *
 from drawing import *
 from tools import *
 from planners import *
@@ -15,7 +16,7 @@ def get_cvisible_points(T, g_obs, a_obs, p, q, k_length, k_collision):
     tops3D = []
     for vp in vplanes:
         tops = get_take_off_points(cradius, vp, q)
-        cvis_tops = get_cvisible_tops(vp, tops, T)
+        cvis_tops = get_cvisible_tops(vp, tops, T, k_length, k_collision)
         
 
 
@@ -30,67 +31,6 @@ def get_cvisible_points(T, g_obs, a_obs, p, q, k_length, k_collision):
         # ... append to tops3D the ground point the cvisible top and tether length (Pg, topPg, L)
 
     return tops3D
-
-    # T_proj = np.array(list(T[:2])+[0])
-    # v1 = T-ground_point
-    # v2 = T_projection-ground_point
-    # normal_vector = normalize(np.cross(v1, v2))
-
-    # if tuple(normal_vector) in PLANES_2D:
-    #     transformed_obstacles = PLANES_2D[tuple(normal_vector)]
-    #     time_mink = 0
-    # else:
-    #     # Intervals can affect the computation of the intersections
-    #     # intervals = plane_intervals(target, T_projection, ground_point) # Get the interval to know if a point is inside the vertical plane
-    #     obstacles = []
-    #     # for _,hull,_,_ in ground_obs.values():
-    #     for _,hull,_ in ground_obs.values():
-            
-    #         edges = []    
-    #         for simplex in hull.simplices:
-    #             s = hull.points[simplex]
-    #             edges += [(s[i], s[i+1]) for i in range(len(s)-1)] + [(s[-1], s[0])]
-            
-    #         intersections = plane_edges_collision_points_normal(ground_point, normal_vector, edges) # find intersections between obstacles and the vertical plane
-
-    #         if len(intersections):
-    #             obstacles.append(intersections)
-            
-    #     for _, hull in aerial_obs.values():
-            
-    #         edges = []
-    #         for simplex in hull.simplices:
-    #             s = hull.points[simplex]
-    #             edges += [(s[i], s[i+1]) for i in range(len(s)-1)] + [(s[-1], s[0])]
-            
-    #         intersections = plane_edges_collision_points_normal(ground_point, normal_vector, edges) # find intersections between obstacles and the vertical plane
-
-    #         if len(intersections):
-    #             obstacles.append(intersections)
-
-    #     # fig = plt.figure()
-    #     # ax = fig.add_subplot(111, projection='3d')
-    #     # for oi in obstacles:
-    #     #     X, Y, Z  = zip(*oi)
-    #     #     plt.plot(X, Y, Z, '.k') 
-
-    #     transformed_obstacles = obstacles
-    #     time_mink = 0
-    #     # t_init = time.time()
-    #     # transformed_obstacles = minkowski_transform_2D(obstacles) if len(obstacles) else []
-    #     # time_mink = time.time()-t_init
-
-    #     PLANES_2D[tuple(normal_vector)] = transformed_obstacles 
-
-    #     # for oi in transformed_obstacles:
-    #     #     X, Y, Z  = zip(*oi)
-    #     #     plt.plot(X, Y, Z, '.g') 
-
-    #     # plt.plot([ground_point[0], target[0], target[0]], [ground_point[1], target[1], target[1]], [ground_point[2], target[2], 0], 'or')
-    #     # plt.show()
-
-    # result = dp3D(ground_point, target, CABLE_LENGTH, UAV_RADIO, UGV_RADIO, UGV_HEIGHT, transformed_obstacles, k_length, k_collision), time_mink    
-    # return result
 
 
 def get_vertical_planes(T, T_proj, cradius, p, ground_obstacles, aerial_obstacles):
@@ -131,14 +71,15 @@ def get_take_off_points(cradius, vertical_plane, q):
     return [Q + step*i*v for i in range(q)]
         
 
-def get_cvisible_tops(vplane, tops, T):
+def get_cvisible_tops(vplane, tops, T, k_length, k_collision):
     
     c0, c1 = vplane["coords"]
     T_proj = (T[c0], T[c1])
     tops_proj = [[np.array((top[c0], top[c1]))] for top in tops]
     
     obs_proj = []
-    for obs in vplane["ground_obstacles"]+vplane["aerial_obstacles"]:
+    obstacles = vplane["ground_obstacles"]+vplane["aerial_obstacles"]
+    for obs in obstacles:
         obs = [np.array((vertex[c0], vertex[c1])) for vertex in obs]
         gch = ConvexHull(obs)
         obs_proj.append(gch.points[gch.vertices])
@@ -153,11 +94,22 @@ def get_cvisible_tops(vplane, tops, T):
     # CHECKPOINT # plot_polygonal_paths(weights, previous, [top[0] for top in tops_proj], T_proj, obs_proj)
 
     tops_cat = {}
-    for top in tops_proj: 
-        if vg.Point(*top[0]) in weights:
-            cat = get_min_catenary(top[0], obs_proj, TETHER_LENGTH)
-            cat3D, length = catenary3D(cat, vplane)
-            if length <= TETHER_LENGTH:
-                tops_cat[top[0]] = {"catenary": cat3D, "length": length}
+    
+    for top in tops:
+        vtop = vg.Point(top[c0], top[c1]) 
+        if vtop in weights:
+
+            plot_polygonal_paths(weights, previous, [(vtop.x, vtop.y)], T_proj, obs_proj)
+
+            cat_points, length = get_min_catenary(top, T, obstacles, weights[vtop], TETHER_LENGTH, k_length, k_collision)
+            print(cat_points, length)
+
+            # CHECKPOINT # 
+            # CHECKPOINT # 
+            # DRAW CATENARY AND OBSTACLESSS!!
+            # CHECKPOINT # 
+            # CHECKPOINT # 
+            
+
 
     return tops_cat

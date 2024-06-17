@@ -78,12 +78,3 @@ def lineq(p1, p2):
     A = np.vstack([x_coords, np.ones(len(x_coords))]).T
     m, c = lstsq(A, y_coords)[0]
     return lambda x: m*x + c
-
-
-def get_min_catenary(top, obstacles, L):
-    pass
-
-
-def catenary3D(catenary, vplane):
-    pass
-            

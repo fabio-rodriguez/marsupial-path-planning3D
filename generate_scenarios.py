@@ -60,7 +60,7 @@ def generate_S1(path):
     aobs = [cola1, cola2, cola3, cola4, cola5, bar1, bar2, bar3]
 
     S = (20,65,0)
-    T = (42,40,8)
+    T = (41,40,13)
     visgraph = make_visibility_graph(gobs)
     plot_visibility_graph(visgraph, gobs)
 
