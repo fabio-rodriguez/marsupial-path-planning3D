@@ -72,7 +72,6 @@ def plot_vertical_plane(plane, T, tops):
 
 def plot2D(title, points, obstacles, tops, coords=None, path_to_output=None):
 
-
     fig = plt.figure()
     ax = fig.add_subplot()
     
@@ -159,9 +158,31 @@ def plot_polygonal_paths(weights, previous, tops, T, obstacles):
             for v2 in o:
                 X, Y = [v1[0], v2[0]], [v1[1], v2[1]]
                 plt.plot(X, Y, "-k")
-    
-
     plt.show()
 
 
+def plot_3Dtether(top, T, tether, obstacles, path_to_output=None):
+    
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection="3d")
 
+    ax.plot(T[0], T[1], T[2], "or")
+    ax.plot(top[0], top[1], top[2], "or")
+    for obs in obstacles:
+        for v1 in obs:
+            for v2 in obs:
+                ax.plot([v1[0], v2[0]], [v1[1], v2[1]], [v1[2], v2[2]], "-k")
+    
+    for i in range(len(tether)-1):
+        ax.plot(
+            [tether[i][0], tether[i+1][0]], 
+            [tether[i][1], tether[i+1][1]],
+            [tether[i][2], tether[i+1][2]], "-b")
+
+    if path_to_output:
+        plt.savefig(path_to_output)
+
+    plt.show()
+    plt.close()
+
+    

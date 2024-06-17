@@ -98,17 +98,11 @@ def get_cvisible_tops(vplane, tops, T, k_length, k_collision):
     for top in tops:
         vtop = vg.Point(top[c0], top[c1]) 
         if vtop in weights:
+            minL = max(weights[vtop], euclidian_distance(top, T))
+            cat_points, length = get_min_catenary(top, T, obstacles, minL, TETHER_LENGTH, k_length, k_collision)
+            # CHECKPOINT #  plot_3Dtether(top, T, cat_points, obstacles)
 
-            plot_polygonal_paths(weights, previous, [(vtop.x, vtop.y)], T_proj, obs_proj)
-
-            cat_points, length = get_min_catenary(top, T, obstacles, weights[vtop], TETHER_LENGTH, k_length, k_collision)
-            print(cat_points, length)
-
-            # CHECKPOINT # 
-            # CHECKPOINT # 
-            # DRAW CATENARY AND OBSTACLESSS!!
-            # CHECKPOINT # 
-            # CHECKPOINT # 
+            
             
 
 

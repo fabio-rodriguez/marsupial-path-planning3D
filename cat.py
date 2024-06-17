@@ -61,22 +61,11 @@ def get_min_catenary(top, T, obstacles, Lmin, Lmax, k_length, k_collision):
         if collision:
             continue 
 
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-        ax.set_xlabel('X Axis')
-        ax.set_ylabel('Y Axis')
-        ax.set_zlabel('Z Axis')
-        xx, yy, zz = zip(*xyzs)
-        plt.plot(xx, yy, zz, '-b')   
-        plt.show() 
-
-        return l
+        return xyzs, l
     
-    print("end")
     return -1
 
             
-
 def cat_obs_collision(oi, xyzs, k_collision):
 
     # plane_number: 10 point_number: 10 t_first_step: 140.73789429664612 dij_time: 1.1343741416931152
