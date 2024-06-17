@@ -152,4 +152,12 @@ def get_cvisible_tops(vplane, tops, T):
 
     # CHECKPOINT # plot_polygonal_paths(weights, previous, [top[0] for top in tops_proj], T_proj, obs_proj)
 
+    tops_cat = {}
+    for top in tops_proj: 
+        if vg.Point(*top[0]) in weights:
+            cat = get_min_catenary(top[0], obs_proj, TETHER_LENGTH)
+            cat3D, length = catenary3D(cat, vplane)
+            if length <= TETHER_LENGTH:
+                tops_cat[top[0]] = {"catenary": cat3D, "length": length}
 
+    return tops_cat
