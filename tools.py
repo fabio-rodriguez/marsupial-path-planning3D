@@ -19,6 +19,8 @@ def normalize(v):
 def euclidian_distance(x1, x2):
     return np.linalg.norm(x1-x2)
 
+def euclidian_distance_lists(x1, x2):
+    return math.sqrt(sum([(x-y)**2 for x,y in zip(x1,x2)]))
 
 def vpoint_euclidian_distance(v1, v2):
     return np.linalg.norm(np.array([v1.x, v1.y])-np.array([v2.x, v2.y]))
@@ -83,9 +85,9 @@ def lineq(p1, p2):
 
 # Inspired on:
 # https://www.udacity.com/blog/2021/10/implementing-dijkstras-algorithm-in-python.html
-def upd_dijkstra_algorithm(start_node, goals, vertices, obstacles):
+def upd_dijkstra_algorithm(start_node, goals, other_vertices, obstacles):
 
-    unvisited_nodes = [start_node] + vertices + list(goals.keys())
+    unvisited_nodes = [start_node] + list(goals.keys()) + [v for vlist in other_vertices for v in vlist ]
 
     # We'll use this dict to save the cost of visiting each node and update it as we move along the graph   
     shortest_path = {}
@@ -116,30 +118,44 @@ def upd_dijkstra_algorithm(start_node, goals, vertices, obstacles):
         #     return current, previous_nodes, shortest_path
                 
         # The code block below retrieves the current node's neighbors and updates their distances
-        # neighbors = graph.get_outgoing_edges(current_min_node)
+        # neighbors = graph.get_outgoing_edges(current_min_node)                    
         for node in unvisited_nodes:
             if is_visible(current, node, obstacles):
+                dist = euclidian_distance_lists(current, node) + shortest_path[current]
 
-                shortest_path[node] = euclidian_distance(current, node)
-                previous_nodes[node] = current
-
-                ### This is for optimizing ground path length + fligth path length                
+                ### This is for optimizing ground path length + flight path length                
                 if node in goals:
-                    shortest_path[node] += node["length"]
+                    dist += goals[node]["length"]
+
+                if dist < shortest_path[node]:
+                    
+                    shortest_path[node] = dist 
+                    previous_nodes[node] = current
 
     return shortest_path, previous_nodes
 
 
 # Given the numerical problems of pyvisgraph we must implement our own visibility
 def is_visible(P1, P2, obstacles):
+    
+    # import matplotlib.pyplot as plt
+    # plt.plot([P1[0], P2[0]], [P1[1], P2[1]], "ok")
     for obs in obstacles:
-        hull  = ConvexHull(obs)
+        
+        for i in range(len(obs)): 
+            for j in range(i+1, len(obs)): 
+        
+                # plt.plot([obs[i][0], obs[j][0]], [obs[i][1], obs[j][1]], "-k")
 
-        for simplex in hull.simplices:
-            if do_intersect(obs[simplex, 0], obs[simplex, 1], P1,P2):
-                return False
+                if do_intersect(obs[i], obs[j], P1, P2):
+                    # plt.title("False")
+                    # plt.show()
+                    return False
 
+    # plt.title("True")
+    # plt.show()
     return True
+
 
 
 def orientation(p, q, r):
@@ -166,6 +182,9 @@ def on_segment(p, q, r):
 def do_intersect(p1, q1, p2, q2):
     """Return True if line segments 'p1q1' and 'p2q2' intersect."""
     # Find the four orientations needed for the general and special cases
+    
+    # if p1 == q1 or p1 == q2 or p1 == q1 or p1 == q2
+    
     o1 = orientation(p1, q1, p2)
     o2 = orientation(p1, q1, q2)
     o3 = orientation(p2, q2, p1)
@@ -193,3 +212,35 @@ def do_intersect(p1, q1, p2, q2):
         return True
 
     return False
+
+
+
+def get_obstacles_proj_vertices(ground_obs):
+
+    ground_obs_proj, ground_obs_vertices = [], []
+    # sec_dist = math.sqrt(UAV_RADIUS/2)
+    sec_dist = EPSILON
+    for obs in ground_obs:
+        xmin = min(obs, key=lambda x: x[0])[0]
+        xmax = max(obs, key=lambda x: x[0])[0]
+        ymin = min(obs, key=lambda x: x[1])[1]
+        ymax = max(obs, key=lambda x: x[1])[1]
+
+        new_points, new_vertices = [], []
+        for v in obs:
+            if v[0] == xmin and v[1] == ymin:
+                new_vertices.append((v[0] - sec_dist, v[1] - sec_dist)) 
+            elif v[0] == xmin and v[1] == ymax:
+                new_vertices.append((v[0] - sec_dist, v[1] + sec_dist)) 
+            elif v[0] == xmax and v[1] == ymin:
+                new_vertices.append((v[0] + sec_dist, v[1] - sec_dist)) 
+            else: 
+                new_vertices.append((v[0] + sec_dist, v[1] + sec_dist)) 
+
+            new_points.append(v[:2])
+        
+        ground_obs_proj.append(new_points)
+        ground_obs_vertices.append(new_vertices)
+
+    return ground_obs_proj, ground_obs_vertices
+

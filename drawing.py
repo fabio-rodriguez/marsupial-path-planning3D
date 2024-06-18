@@ -21,39 +21,43 @@ def plot_scenario(scenario, path=None):
         scenario["ground_obstacles"]+scenario["aerial_obstacles"], path_to_output=path)
 
 
-def plot3D(points, obstacles, path_to_output=None, tops=None):
+def plot3D(points, obstacles, path_to_output=None, tops=None, ground_paths=None):
 
     # 8 points defining the cube corners
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
+
+    for p in points:
+        ax.plot([p["point"][0]], [p["point"][1]], [p["point"][2]], "o", color=p["color"], label=p["label"])  
 
     for pts in obstacles:
 
         hull = ConvexHull(pts)
 
         # Plot defining corner points
-        ax.plot(pts.T[0], pts.T[1], pts.T[2], "k")
+        ax.plot(pts.T[0], pts.T[1], pts.T[2], ".k", markersize=2)
 
         # 12 = 2 * 6 faces are the simplices (2 simplices per square face)
         for s in hull.simplices:
             s = np.append(s, s[0])  # Here we cycle back to the first coordinate
             # ax.plot(pts[s, 0], pts[s, 1], pts[s, 2], "r-")
             verts = [list(zip(pts[s, 0],pts[s, 1],pts[s, 2]))]
-            ax.add_collection3d(Poly3DCollection(verts))
+            ax.add_collection3d(Poly3DCollection(verts, alpha=0.3))
 
         # Make axis label
         for i in ["x", "y", "z"]:
             eval("ax.set_{:s}label('{:s}')".format(i, i))
 
-    for d in points:
-        p,l,c =d["point"], d["label"], d["color"]
-        ax.plot(p[0], p[1], p[2], "o", color=c, label=l)
-
     if tops:
         for top, values in tops.items():
-            ax.plot([top[0]], [top[1]], [top[2]], "og")
+            ax.plot([top[0]], [top[1]], [top[2]], "og", label="top")
             tether = values["tether"]
-            ax.plot(tether[:,0], tether[:,1], tether[:,2], "-g")
+            ax.plot(tether[:,0], tether[:,1], tether[:,2], "-r", label="aerial path")
+
+    if ground_paths:
+        for gp in ground_paths:
+            for i in range(len(gp)-1):
+                ax.plot([gp[i][0], gp[i+1][0]], [gp[i][1], gp[i+1][1]], [0,0], "-g", label="ground_path")
 
     plt.legend()
 
@@ -123,12 +127,7 @@ def plot_visibility_graph(vsgraph, obstacles, path_to_image=None):
             X, Y = [vertex.x, visible_point.x], [vertex.y, visible_point.y]
             plt.plot(X, Y, "-r")
 
-    for o in obstacles:
-        for v1 in o:
-            for v2 in o:
-                X, Y = [v1[0], v2[0]], [v1[1], v2[1]]
-                plt.plot(X, Y, "-k")
-    
+    plot_obstacles(obstacles)
     
     if path_to_image != None:
         plt.savefig(path_to_image)
@@ -155,12 +154,8 @@ def plot_polygonal_paths(weights, previous, tops, T, obstacles):
             
             plt.plot([p.x for p in polygonal], [p.y for p in polygonal], "-b")
 
-    
-    for o in obstacles:
-        for v1 in o:
-            for v2 in o:
-                X, Y = [v1[0], v2[0]], [v1[1], v2[1]]
-                plt.plot(X, Y, "-k")
+    plot_obstacles(obstacles)
+
     plt.show()
 
 
@@ -171,6 +166,7 @@ def plot_3Dtether(top, T, tether, obstacles, path_to_output=None):
 
     ax.plot(T[0], T[1], T[2], "or")
     ax.plot(top[0], top[1], top[2], "or")
+    
     for obs in obstacles:
         for v1 in obs:
             for v2 in obs:
@@ -188,4 +184,44 @@ def plot_3Dtether(top, T, tether, obstacles, path_to_output=None):
     plt.show()
     plt.close()
 
+
+def plot_obstacles(obstacles):
     
+    for o in obstacles:
+        for v1 in o:
+            for v2 in o:
+                X, Y = [v1[0], v2[0]], [v1[1], v2[1]]
+                plt.plot(X, Y, "-k")
+    
+
+def plot_dijkstra_graph(S, previous, obstacles):
+    
+    plot_obstacles(obstacles)
+
+    plt.plot([S[0]], [S[1]], "ro")
+
+    visited = [S]
+    while visited:
+        current = visited.pop(0)
+        for k, v in previous.items():
+            if v!=None and v == current:
+                plt.plot([current[0], k[0]], [current[1], k[1]], "r-")
+                visited.append(k)
+
+    plt.show()
+
+
+def plot_optimal_solution(S, T, min_ctop, ground_path, ground_obs, aerial_obs):
+    
+    plot3D([
+        {
+            "point":S, 
+            "label":"S", "color":"k"
+        }, 
+        {
+            "point":T, 
+            "label":"T", "color":"r"
+        }], 
+        ground_obs + aerial_obs, 
+        tops=min_ctop,
+        ground_paths=[ground_path])

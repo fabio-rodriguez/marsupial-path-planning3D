@@ -5,14 +5,14 @@ from drawing import *
 from tools import *
 
 
-def path_planning_smpp(S, T, ground_obs, aerial_obs, ground_vsgraph, p=5, q=5, k_length=10, k_collision=10):
+def path_planning_smpp(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, k_collision=10):
     """
         Planning algorithm based on Dijkstra apprach to reach B with the aerial vehicle starting from A with the ground vehicle
 
         The visibility graph can be partially pre-computed
     """
 
-    cvisible_points = get_cvisible_tops(T, ground_obs, aerial_obs,  p, q, k_length, k_collision)
+    cvisible_tops = get_cvisible_tops(T, ground_obs, aerial_obs,  p, q, k_length, k_collision)
     
     # CHECKPOINT # plot3D([{"point":S, "label":"S", "color":"k"}, {"point":T, "label":"T", "color":"r"}], ground_obs + aerial_obs, tops = cvisible_points)
 
@@ -34,14 +34,35 @@ def path_planning_smpp(S, T, ground_obs, aerial_obs, ground_vsgraph, p=5, q=5, k
 
     ####################################################
 
-    weigths, previous = upd_dijkstra_algorithm(S, cvisible_points, ground_vsgraph.visgraph.get_points(), ground_obs)
+    ground_obs_proj, ground_obs_vertices = get_obstacles_proj_vertices(ground_obs)
+    
+    ground_points = {k[:2]:v for k,v in cvisible_tops.items()}
+    weigths, previous = upd_dijkstra_algorithm(S, ground_points, ground_obs_vertices, ground_obs_proj)
 
-    # checkpoint
+    # CHECKPOINT # plot_dijkstra_graph(S, previous, ground_obs_proj)
 
-    # Search algorithms
+    minL = sys.maxsize
+    min_ctop_d = None
+    min_ctop = None    
+    for ctop, v in cvisible_tops.items():
+        w = weigths[tuple(ctop[:2])]
+        if w < minL:
+            min_ctop_d = {ctop: v}
+            min_ctop = ctop
+            minL = w
 
-    # checkpoint
+    ground_path = build_path_to_goal(tuple(min_ctop[:2]), previous)
 
+    print(ground_path)
+    # CHECKPOINT # 
+    plot_optimal_solution(S, T, min_ctop_d, ground_path, ground_obs, aerial_obs)
+
+
+def build_path_to_goal(point, previous):
+    path = [point]
+    while previous[path[-1]] != None:
+        path.append(previous[path[-1]])
+    return path
 
 
 if __name__ == "__main__":
@@ -51,8 +72,8 @@ if __name__ == "__main__":
     with open(path, "rb") as f:
         s = pkl.loads(f.read())
 
-    p=5
-    q=10 # should be even
+    p=3
+    q=4 # should be even
     k_length=100
     k_collision=100
     path_planning_smpp(
@@ -60,6 +81,5 @@ if __name__ == "__main__":
         s["T"], 
         s["ground_obstacles"],
         s["aerial_obstacles"], 
-        s["ground_vis_graph"],
         p, q, k_length, k_collision)
 
