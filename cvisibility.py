@@ -1,3 +1,4 @@
+import math
 import numpy as np
 
 from cat import *
@@ -93,7 +94,7 @@ def get_cvisible_tops2D(vplane, tops, T, k_length, k_collision):
             cat_points, length = get_min_catenary(top, T, obstacles, minL, TETHER_LENGTH, k_length, k_collision)
             # CHECKPOINT #  plot_3Dtether(top, T, cat_points, obstacles)
 
-            if length > 0:
+            if length > 0 and not math.isnan(cat_points[0][0]):
                 tops_cat[tuple(top)] = {"length": length, "tether": cat_points} 
             
     return tops_cat

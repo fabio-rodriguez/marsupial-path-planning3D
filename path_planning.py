@@ -11,21 +11,30 @@ def path_planning_smpp(S, T, ground_obs, aerial_obs, ground_vsgraph, p=5, q=5, k
 
         The visibility graph can be partially pre-computed
     """
-        
-    cvisible_points = get_cvisible_points(T, ground_obs, aerial_obs,  p, q, k_length, k_collision)
 
-    exit()
-    # checkpoint
+    cvisible_points = get_cvisible_tops(T, ground_obs, aerial_obs,  p, q, k_length, k_collision)
+    
+    # CHECKPOINT # plot3D([{"point":S, "label":"S", "color":"k"}, {"point":T, "label":"T", "color":"r"}], ground_obs + aerial_obs, tops = cvisible_points)
 
-    # Insert S and the catenary visible points into the visibility graph 
-    ground_targets = []
-    targets_min_tether = {}
-    for p, l in cvis_points, min_tether_lengths:
-        vgp = vg.Point(*p)
-        ground_targets.append(vg.Point(*vgp))
-        targets_min_tether[tuple(vgp)] = l 
-        
-    ground_vsgraph.update([vg.Point(*S[:2])] + ground_targets)
+    ###### UNCOMMENT UNDER FLOATING POINT ERRORS #######
+
+    # Insert S into the visibility graph 
+    # ground_vsgraph.update([vg.Point(*S[:2])])
+
+    # Insert cvisibile tops into the visibility graph 
+    # targets_min_tether = {}
+    # for top, values in cvisible_points.items():
+    #     vgtop = vg.Point(*top[:2]) # In reallity this point is translated within the ground a UAV_RADIUS to the opposite direction of T    
+    #     ground_vsgraph.update([vg.Point(*S[:2])])
+    #     targets_min_tether[vgtop] = values
+
+    # ground_vsgraph.update(targets_min_tether.keys())
+
+    # CHECKPOINT # plot_visibility_graph(ground_vsgraph, ground_obs, path_to_image=None)
+
+    ####################################################
+
+    weigths, previous = upd_dijkstra_algorithm(S, cvisible_points, ground_vsgraph.visgraph.get_points(), ground_obs)
 
     # checkpoint
 
@@ -42,8 +51,8 @@ if __name__ == "__main__":
     with open(path, "rb") as f:
         s = pkl.loads(f.read())
 
-    p=10 
-    q=20 # should be even
+    p=5
+    q=10 # should be even
     k_length=100
     k_collision=100
     path_planning_smpp(

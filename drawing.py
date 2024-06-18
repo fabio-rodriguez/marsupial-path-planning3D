@@ -18,17 +18,14 @@ def plot_scenario(scenario, path=None):
             "point":scenario["T"], 
             "label":"T", "color":"r"
         }], 
-        scenario["ground_obstacles"]+scenario["aerial_obstacles"], path)
+        scenario["ground_obstacles"]+scenario["aerial_obstacles"], path_to_output=path)
 
 
-def plot3D(points, obstacles, path_to_output=None):
-
+def plot3D(points, obstacles, path_to_output=None, tops=None):
 
     # 8 points defining the cube corners
-    
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
-
 
     for pts in obstacles:
 
@@ -51,6 +48,12 @@ def plot3D(points, obstacles, path_to_output=None):
     for d in points:
         p,l,c =d["point"], d["label"], d["color"]
         ax.plot(p[0], p[1], p[2], "o", color=c, label=l)
+
+    if tops:
+        for top, values in tops.items():
+            ax.plot([top[0]], [top[1]], [top[2]], "og")
+            tether = values["tether"]
+            ax.plot(tether[:,0], tether[:,1], tether[:,2], "-g")
 
     plt.legend()
 
@@ -115,7 +118,7 @@ def plot2D(title, points, obstacles, tops, coords=None, path_to_output=None):
 
 def plot_visibility_graph(vsgraph, obstacles, path_to_image=None):
      
-    for vertex in  vsgraph.graph.get_points():
+    for vertex in  vsgraph.visgraph.get_points():
         for visible_point in vsgraph.find_visible(vertex):
             X, Y = [vertex.x, visible_point.x], [vertex.y, visible_point.y]
             plt.plot(X, Y, "-r")
