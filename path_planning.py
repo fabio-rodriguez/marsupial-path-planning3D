@@ -72,8 +72,9 @@ if __name__ == "__main__":
     with open(path, "rb") as f:
         s = pkl.loads(f.read())
 
-    p=3
-    q=4 # should be even
+    p=10
+    q=10 # REVISAR
+    
     k_length=100
     k_collision=100
     path_planning_smpp(

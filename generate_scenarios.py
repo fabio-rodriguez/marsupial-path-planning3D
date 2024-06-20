@@ -1,5 +1,6 @@
 import numpy as np
 import pickle as pkl
+import random
 
 from constants import *
 from drawing import *
@@ -81,6 +82,127 @@ def generate_S1(path):
     plot_scenario(s, "images/S1.png")
 
 
+def get_random_instances(n_instances, ground_n, aerial_n, block_thick, board_size):
+    
+    h = MARSUPIAL_HEIGHT
+    xmax, ymax, zmax = board_size
+    side = np.array([0,0,block_thick])
+    
+    ## Ground Obstacles
+    is_disjoint_vertex_ground = lambda p, vlist: not any(map(
+        lambda v: 
+            v[0] <= p[0] <= v[0]+block_thick and 
+            v[1] <= p[1] <= v[1]+block_thick, vlist))     
+    
+    g_main_vertices = []
+    iter = 0
+    while iter<MAX_ITERS and len(g_main_vertices)<ground_n+n_instances:
+        x = random.randint(0, xmax-block_thick)
+        y = random.randint(0, ymax-block_thick)
+
+        if is_disjoint_vertex_ground((x,y), g_main_vertices):
+            g_main_vertices.append(np.array((x,y,0)))
+    
+    ## Aerial Obstacles
+    is_disjoint_vertex_air = lambda p, vlist: not any(map(
+        lambda v: 
+            v[0] <= p[0] <= v[0]+block_thick and 
+            v[1] <= p[1] <= v[1]+block_thick and
+            v[2] <= p[2] <= v[2]+block_thick , vlist))     
+    
+    a_main_vertices = []
+    iter = 0
+    while iter<MAX_ITERS and len(a_main_vertices)<aerial_n+n_instances:
+        x = random.randint(0, xmax-block_thick)
+        y = random.randint(0, ymax-block_thick)
+        z = random.randint(h, zmax-block_thick)
+
+        if is_disjoint_vertex_air((x,y,z), g_main_vertices):
+            a_main_vertices.append(np.array((x,y,z)))
+
+    random.shuffle(g_main_vertices)
+    random.shuffle(a_main_vertices)
+
+    starting_points = g_main_vertices[:n_instances]
+    target_points = a_main_vertices[:n_instances]
+
+    # Get Obstacles
+    get_obs = lambda vlist: [np.array([
+        v, v + side, 
+        v+np.array([0,block_thick,0]), v+np.array([0,block_thick,0]) + side,
+        v+np.array([block_thick,0,0]), v+np.array([block_thick,0,0]) + side, 
+        v+np.array([block_thick,block_thick,0]), v+np.array([block_thick,block_thick,0]) + side 
+        ]) for v in vlist]
+
+    gobs = get_obs(g_main_vertices[n_instances:])
+    aobs = get_obs(a_main_vertices[n_instances:])
+
+    # gobs = [np.array([
+    #     v, v + side, 
+    #     v+np.array([0,block_thick,0]), v+np.array(0,block_thick,0) + side,
+    #     v+np.array([block_thick,0,0]), v+np.array([block_thick,0,0]) + side, 
+    #     v+np.array(block_thick,block_thick,0), v+np.array(block_thick,block_thick,0) + side 
+    #     ]) for v in g_main_vertices[n_instances:]]
+
+    # aobs = [np.array([
+    #     v, v + side, 
+    #     v+np.array(0,block_thick,0), v+np.array(0,block_thick,0) + side,
+    #     v+np.array(block_thick,0,0), v+np.array(block_thick,0,0) + side, 
+    #     v+np.array(block_thick,block_thick,0), v+np.array(block_thick,block_thick,0) + side 
+    #     ]) for v in a_main_vertices[n_instances:]]
+
+    return starting_points, target_points, gobs, aobs    
+
+
+def get_random_scenarios(n_scenarios, ground_n, aerial_n, n_instances, block_thick, board_size, path, plot=None):
+
+    rscenarios = []
+    for i in range(n_scenarios):
+
+        spoints, tpoints, gobs, aobs = get_random_instances(n_instances, ground_n, aerial_n, block_thick, board_size)
+        # visgraph = make_visibility_graph(gobs)
+        for j in range(n_instances):
+            s = {
+                "S": spoints[j],
+                "T": tpoints[j],
+                "ground_obstacles": gobs,
+                "aerial_obstacles": aobs
+                # "ground_vis_graph": visgraph,
+            }
+            rscenarios.append(s)
+
+    with open(path, "wb") as f:
+        f.write(pkl.dumps(rscenarios))
+
+    if plot:
+    
+        with open(path, "rb") as f:
+            s = pkl.loads(f.read())
+    
+        print("Number of Scenarios:", len(s))
+        for i in range(len(s)):
+            plot3D([
+                {
+                    "point": s[i]["S"], 
+                    "label":"S", "color":"k"
+                }, 
+                {
+                    "point": s[i]["T"],
+                    "label":"T", "color":"r"
+                }], 
+                s[i]["ground_obstacles"]+s[i]["aerial_obstacles"])
+
+
 if __name__ == "__main__":
     
-    generate_S1("scenarios/S1.pkl")
+    # generate_S1("scenarios/S1.pkl")
+
+    n = 1000
+    instances_n = 1
+    ground_n = 40 
+    aerial_n = 40
+    block_thick = 5 
+    board_size = (100,100,50)
+    path = "scenarios/random_scenarios.pkl"
+    
+    get_random_scenarios(n, ground_n, aerial_n, instances_n, block_thick, board_size, path, plot=True)

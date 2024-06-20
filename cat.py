@@ -45,7 +45,7 @@ def get_min_catenary(top, T, obstacles, Lmin, Lmax, k_length, k_collision):
                 plt.plot(xx, yy, zz, '-b')   
                 plt.show() 
 
-                return -1
+                return None, -1
                 
         is_collision_cat_obs = lambda oi: cat_obs_collision(oi, xyzs, k_collision)
 
@@ -54,7 +54,7 @@ def get_min_catenary(top, T, obstacles, Lmin, Lmax, k_length, k_collision):
             if is_collision_cat_obs(oi):
                 for v in oi:
                     if v[-1] == 0:
-                        return -1
+                        return None, -1
                 collision = True
                 break                
             
@@ -63,7 +63,7 @@ def get_min_catenary(top, T, obstacles, Lmin, Lmax, k_length, k_collision):
 
         return xyzs, l
     
-    return -1
+    return None, -1
 
             
 def cat_obs_collision(oi, xyzs, k_collision):
