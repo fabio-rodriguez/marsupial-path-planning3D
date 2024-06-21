@@ -2,6 +2,7 @@ import math
 import numpy as np
 import pyvisgraph as vg
 import sys
+import time
 
 from constants import *
 from numpy.linalg import lstsq
@@ -46,9 +47,14 @@ def intersect_obstacles_and_vertical_plane(p1, p2, p3, obstacles):
     v2 = p3-p1
     normal_vector = normalize(np.cross(v1, v2))
 
+    tt = 0
     vertical_obstacles = []
     for oi in obstacles:
+
+        t = time.time()
         hull = hull = ConvexHull(oi)
+        tt += time.time() - t
+        
         edges = []
         for simplex in hull.simplices:
             s = hull.points[simplex]
@@ -60,7 +66,7 @@ def intersect_obstacles_and_vertical_plane(p1, p2, p3, obstacles):
         if len(intersections):
             vertical_obstacles.append(list(intersections))
 
-    return vertical_obstacles
+    return vertical_obstacles, tt
 
 
 def plane_edges_collision_points_normal(plane_point, normal, edges):
@@ -105,6 +111,7 @@ def upd_dijkstra_algorithm(start_node, goals, other_vertices, obstacles):
     shortest_path[start_node] = 0
     previous_nodes[start_node] = None
     
+    tt = 0
     # The algorithm executes until we visit all nodes
     while unvisited_nodes:
         # The code block below finds the node with the lowest score
@@ -112,15 +119,22 @@ def upd_dijkstra_algorithm(start_node, goals, other_vertices, obstacles):
         for i in range(1, len(unvisited_nodes)): # Iterate over the nodes
             if shortest_path[unvisited_nodes[i]] < shortest_path[current]:
                 current = unvisited_nodes[i]
+
+        if current in goals:
+            return current, shortest_path, previous_nodes, tt
+        
         unvisited_nodes.remove(current)
 
-        # if (current.x, current.y, current.z) in goals:
-        #     return current, previous_nodes, shortest_path
                 
         # The code block below retrieves the current node's neighbors and updates their distances
         # neighbors = graph.get_outgoing_edges(current_min_node)                    
         for node in unvisited_nodes:
-            if is_visible(current, node, obstacles):
+
+            t = time.time()
+            isvis = is_visible(current, node, obstacles) 
+            tt += time.time() - t
+
+            if isvis:
                 dist = euclidian_distance_lists(current, node) + shortest_path[current]
 
                 ### This is for optimizing ground path length + flight path length                
@@ -132,7 +146,7 @@ def upd_dijkstra_algorithm(start_node, goals, other_vertices, obstacles):
                     shortest_path[node] = dist 
                     previous_nodes[node] = current
 
-    return shortest_path, previous_nodes
+    return None, shortest_path, previous_nodes, tt
 
 
 # Given the numerical problems of pyvisgraph we must implement our own visibility

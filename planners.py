@@ -5,7 +5,7 @@ from drawing import *
 from pyvisgraph.visible_vertices import visible_vertices
 from tools import * 
 
-def pvisibility_2D(graph, T, L, obs):
+def pvisibility_2D(graph, T, L):
 
     target = vg.Point(*T)
     current_nodes = [target]

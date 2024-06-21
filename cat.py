@@ -15,6 +15,7 @@ def get_min_catenary(top, T, obstacles, Lmin, Lmax, k_length, k_collision):
     'min_cat_delta' evita que la libreria te de error con la primera catenaria por ser una recta
     '''
 
+    tt = 0
     for l in np.linspace(Lmin + EPSILON, Lmax, k_length):
         
         a = [0,0,0]
@@ -45,25 +46,27 @@ def get_min_catenary(top, T, obstacles, Lmin, Lmax, k_length, k_collision):
                 plt.plot(xx, yy, zz, '-b')   
                 plt.show() 
 
-                return None, -1
+                return None, -1, tt
                 
         is_collision_cat_obs = lambda oi: cat_obs_collision(oi, xyzs, k_collision)
 
         collision = False
-        for oi in obstacles:    
+        for oi in obstacles:  
+            t = time.time()  
             if is_collision_cat_obs(oi):
                 for v in oi:
                     if v[-1] == 0:
-                        return None, -1
+                        return None, -1, tt
                 collision = True
-                break                
+                break
+            tt += time.time() - t                
             
         if collision:
             continue 
 
-        return xyzs, l
+        return xyzs, l, tt
     
-    return None, -1
+    return None, -1, tt
 
             
 def cat_obs_collision(oi, xyzs, k_collision):

@@ -12,17 +12,18 @@ def get_cvisible_tops(T, g_obs, a_obs, p, q, k_length, k_collision):
     T_proj = np.array([T[0], T[1], HTOP])
     cradius = get_top_circ_radious(T)
 
-    vplanes = get_vertical_planes(T, T_proj, cradius, p, g_obs, a_obs)
+    vplanes, tt = get_vertical_planes(T, T_proj, cradius, p, g_obs, a_obs)
 
     tops3D = {}
     for vp in vplanes:
         tops = get_take_off_points(cradius, vp, q)
         # CHECKPOINT #  plot_vertical_plane(vp,T,tops) 
 
-        cvis_tops = get_cvisible_tops2D(vp, tops, T, k_length, k_collision)
+        cvis_tops, ti = get_cvisible_tops2D(vp, tops, T, k_length, k_collision)
+        tt += ti
         tops3D.update(cvis_tops)        
 
-    return tops3D
+    return tops3D, tt
 
 
 def get_vertical_planes(T, T_proj, cradius, p, ground_obstacles, aerial_obstacles):
@@ -36,8 +37,8 @@ def get_vertical_planes(T, T_proj, cradius, p, ground_obstacles, aerial_obstacle
         Q = T_proj - v*cradius
         coords = get_plane_coords(Q, T) # find the best coordinates to represent the vertical plane (avoiding null coordinates problems)
 
-        vplane_gobs = intersect_obstacles_and_vertical_plane(border_point, T, T_proj, ground_obstacles)
-        vplane_aobs = intersect_obstacles_and_vertical_plane(border_point, T, T_proj, aerial_obstacles)
+        vplane_gobs, t1 = intersect_obstacles_and_vertical_plane(border_point, T, T_proj, ground_obstacles)
+        vplane_aobs, t2 = intersect_obstacles_and_vertical_plane(border_point, T, T_proj, aerial_obstacles)
         planes.append({
             "Q": Q,
             "top_vector": v,
@@ -47,7 +48,7 @@ def get_vertical_planes(T, T_proj, cradius, p, ground_obstacles, aerial_obstacle
             "aerial_obstacles": vplane_aobs
         })
     
-    return planes
+    return planes, t1+t2
 
 
 def get_plane_coords(X, T):
@@ -69,19 +70,24 @@ def get_cvisible_tops2D(vplane, tops, T, k_length, k_collision):
     T_proj = (T[c0], T[c1])
     tops_proj = [[np.array((top[c0], top[c1]))] for top in tops]
     
+    tt = 0
     obs_proj = []
     obstacles = vplane["ground_obstacles"]+vplane["aerial_obstacles"]
     for obs in obstacles:
         obs = [np.array((vertex[c0], vertex[c1])) for vertex in obs]
+        t = time.time()
         gch = ConvexHull(obs)
+        tt += time.time() - t
         obs_proj.append(gch.points[gch.vertices])
 
     vertices_lists = [[T_proj]] + tops_proj + obs_proj
+    t = time.time()
     visgraph = make_visibility_graph(vertices_lists)
+    tt += time.time() - t
 
     # CHECKPOINT # plot_visibility_graph(visgraph, obs_proj)
 
-    weights, previous = pvisibility_2D(visgraph, T_proj, TETHER_LENGTH, obs_proj)
+    weights, previous = pvisibility_2D(visgraph, T_proj, TETHER_LENGTH)
 
     # CHECKPOINT # plot_polygonal_paths(weights, previous, [top[0] for top in tops_proj], T_proj, obs_proj)
 
@@ -91,10 +97,11 @@ def get_cvisible_tops2D(vplane, tops, T, k_length, k_collision):
         vtop = vg.Point(top[c0], top[c1]) 
         if vtop in weights:
             minL = max(weights[vtop], euclidian_distance(top, T))
-            cat_points, length = get_min_catenary(top, T, obstacles, minL, TETHER_LENGTH, k_length, k_collision)
+            cat_points, length, t = get_min_catenary(top, T, obstacles, minL, TETHER_LENGTH, k_length, k_collision)
+            tt += t
             # CHECKPOINT #  plot_3Dtether(top, T, cat_points, obstacles)
 
             if length > 0 and not math.isnan(cat_points[0][0]):
                 tops_cat[tuple(top)] = {"length": length, "tether": cat_points} 
             
-    return tops_cat
+    return tops_cat, tt
