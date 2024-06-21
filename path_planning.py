@@ -108,13 +108,19 @@ def example():
 
 
 def run_random_experiments():
-    pass
+    
+    path = "scenarios/S1.pkl"
+
+    with open(path, "rb") as f:
+        s = pkl.loads(f.read())
+
+    print(s)
 
 
 if __name__ == "__main__":
     
-    example()
+    # example()
 
-    # run_random_experiments()
+    run_random_experiments()
 
     
