@@ -17,9 +17,9 @@ def pvisibility_2D(graph, T, L):
         for v in visible_points:
             if not v in weights:
                 if v.y <= current.y and (current == target or is_icpc(v, current, previous[current])):
-                    current_nodes.append(v)
                     new_weight = vpoint_euclidian_distance(v, current) + weights[current]
                     if new_weight <= L:
+                        current_nodes.append(v)
                         weights[v] = new_weight 
                         previous[v] = current
 

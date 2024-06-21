@@ -109,12 +109,49 @@ def example():
 
 def run_random_experiments():
     
-    path = "scenarios/S1.pkl"
+    path = "scenarios/random_scenarios.pkl"
+    path_output = "scenarios/random_results.pkl"
 
     with open(path, "rb") as f:
         s = pkl.loads(f.read())
 
-    print(s)
+    # p = [4, 8, 16, 32, 64]
+    # q = [10, 20, 30, 40, 50]
+    p = [4,5]
+    q = [10,11]
+
+    k_length= 20 
+    k_collision = 50
+
+    results = []
+    for si in s[:3]:
+        r = {}
+        for pi in p:    
+            for qi in q:
+                S = si["S"] + np.random.rand(3) # Avoid numerical errors
+                T = si["T"] + np.random.rand(3) # Avoid numerical errors
+                
+                try:
+                    gl, al, tt = path_planning_smpp(
+                        tuple(S), tuple(T), 
+                        si["ground_obstacles"][:10],
+                        si["aerial_obstacles"][:10], 
+                        pi, qi, k_length, k_collision)
+
+                    r[(pi,qi)] = {"gp_length": gl, "ap_length": al, "tt": tt}
+                except:
+                    continue
+
+        results.append(r)
+
+        with open(path_output, "wb") as f:
+            f.write(pkl.dumps(results))
+
+    with open(path_output, "rb") as f:
+            r = pkl.loads(f.read())
+    print(len(r))
+    print(r)
+
 
 
 if __name__ == "__main__":

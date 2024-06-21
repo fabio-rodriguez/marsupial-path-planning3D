@@ -30,15 +30,16 @@ def get_vertical_planes(T, T_proj, cradius, p, ground_obstacles, aerial_obstacle
 
     Cx, Cy, _ = T_proj
     planes = []
-    
+
     for i in range(p):
         border_point = np.array([math.cos(math.pi/p*i) + Cx, math.sin(math.pi/p*i) + Cy, HTOP])
         v = normalize(border_point - T_proj)
         Q = T_proj - v*cradius
         coords = get_plane_coords(Q, T) # find the best coordinates to represent the vertical plane (avoiding null coordinates problems)
-
+    
         vplane_gobs, t1 = intersect_obstacles_and_vertical_plane(border_point, T, T_proj, ground_obstacles)
         vplane_aobs, t2 = intersect_obstacles_and_vertical_plane(border_point, T, T_proj, aerial_obstacles)
+
         planes.append({
             "Q": Q,
             "top_vector": v,

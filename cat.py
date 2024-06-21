@@ -36,15 +36,15 @@ def get_min_catenary(top, T, obstacles, Lmin, Lmax, k_length, k_collision):
 
         for xyz in xyzs:
             if xyz[-1] <= 0:
-                fig = plt.figure()
-                ax = fig.add_subplot(111, projection='3d')
-                ax.set_xlabel('X Axis')
-                ax.set_ylabel('Y Axis')
-                ax.set_zlabel('Z Axis')
-                xx, yy, zz = zip(*xyzs)
-                plt.title("ERROR")
-                plt.plot(xx, yy, zz, '-b')   
-                plt.show() 
+                # fig = plt.figure()
+                # ax = fig.add_subplot(111, projection='3d')
+                # ax.set_xlabel('X Axis')
+                # ax.set_ylabel('Y Axis')
+                # ax.set_zlabel('Z Axis')
+                # xx, yy, zz = zip(*xyzs)
+                # plt.title("ERROR")
+                # plt.plot(xx, yy, zz, '-b')   
+                # plt.show() 
 
                 return None, -1, tt
                 
