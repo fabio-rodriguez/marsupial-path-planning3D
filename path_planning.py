@@ -115,16 +115,16 @@ def run_random_experiments():
     with open(path, "rb") as f:
         s = pkl.loads(f.read())
 
-    # p = [4, 8, 16, 32, 64]
-    # q = [10, 20, 30, 40, 50]
-    p = [4,5]
-    q = [10,11]
+    p = [4, 8, 16, 32, 64]
+    q = [10, 20, 30, 40, 50]
+    # p = [4]
+    # q = [10,11]
 
     k_length= 20 
     k_collision = 50
 
     results = []
-    for si in s[:3]:
+    for si in s:
         r = {}
         for pi in p:    
             for qi in q:
