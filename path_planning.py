@@ -113,15 +113,13 @@ def example():
 def run_random_experiments(n, init=0):
     
     path = "scenarios/random_scenarios.pkl"
-    path_output = "scenarios/random_results.pkl"
+    path_output = "scenarios/random_results_extended.pkl"
 
     with open(path, "rb") as f:
         s = pkl.loads(f.read())
 
-    p = [4, 8, 16, 32, 64]
-    q = [10, 20, 30, 40, 50]
-    # p = [4]
-    # q = [10,11]
+    p = [180]
+    q = [100]
 
     k_length= 20 
     k_collision = 50
