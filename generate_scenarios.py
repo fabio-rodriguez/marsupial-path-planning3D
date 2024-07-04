@@ -82,6 +82,155 @@ def generate_S1(path):
     plot_scenario(s, "images/S1.png")
 
 
+def generate_S2_atttemp1(path):
+    
+    h = MARSUPIAL_HEIGHT
+    wall_thick = 2
+
+    x_wall1 = 20
+    y_wall1 = 50
+    wall11 = np.array([
+        [x_wall1, y_wall1, 0], [x_wall1+70, y_wall1, 0], [x_wall1, y_wall1+wall_thick, 0], [x_wall1+70, y_wall1+wall_thick, 0],
+        [x_wall1, y_wall1, h], [x_wall1+70, y_wall1, h], [x_wall1, y_wall1+wall_thick, h], [x_wall1+70, y_wall1+wall_thick, h],
+    ])
+    wall12 = wall11 + np.array([0, 0, h+EPSILON])
+    wall21 = wall11 + np.array([-10, 10, 0])
+    wall22 = wall21 + np.array([0, 0, h+EPSILON])
+    
+    x_roof1 = 10
+    roof1 = np.array([
+        [x_roof1, y_wall1, 2*h+2*EPSILON], [x_roof1+35, y_wall1, 2*h+2*EPSILON], 
+        [x_roof1, y_wall1+10+wall_thick, 2*h+2*EPSILON], [x_roof1+35, y_wall1+10+wall_thick, 2*h+2*EPSILON],
+        [x_roof1, y_wall1, 2*h+wall_thick], [x_roof1+35, y_wall1, 2*h+wall_thick], 
+        [x_roof1, y_wall1+10+wall_thick, 2*h+wall_thick], [x_roof1+35, y_wall1+10+wall_thick, 2*h+wall_thick],
+    ])
+    roof2 = roof1 + np.array([45,0,0])
+
+    x_wall3 = 10 - wall_thick - EPSILON
+    y_wall3 = 40
+    wall31 = np.array([
+        [x_wall3, y_wall3, 0], [x_wall3 + wall_thick, y_wall3, 0], 
+        [x_wall3, y_wall3+20+wall_thick, 0], [x_wall3 + wall_thick, y_wall3+20+wall_thick, 0], 
+        [x_wall3, y_wall3, h], [x_wall3 + wall_thick, y_wall3, h], 
+        [x_wall3, y_wall3+20+wall_thick, h], [x_wall3 + wall_thick, y_wall3+20+wall_thick, h],         
+    ])
+    wall32 = np.array([
+        [x_wall3, y_wall3, h+EPSILON], [x_wall3 + wall_thick, y_wall3, h+EPSILON], 
+        [x_wall3, y_wall3+20+wall_thick, h+EPSILON], [x_wall3 + wall_thick, y_wall3+20+wall_thick, h+EPSILON], 
+        [x_wall3, y_wall3, 2*h+wall_thick], [x_wall3 + wall_thick, y_wall3, 2*h+wall_thick], 
+        [x_wall3, y_wall3+20+wall_thick, 2*h+wall_thick], [x_wall3 + wall_thick, y_wall3+20+wall_thick, 2*h+wall_thick],         
+    ])
+    wall41 = wall31 + np.array([80+2*EPSILON+wall_thick,10,0])
+    wall42 = wall32 + np.array([80+2*EPSILON+wall_thick,10,0])
+        
+    
+
+
+    # bar1 = np.array([
+    #     [x_col1, y_col1+col_thick+EPSILON, 1.5*h], [x_col1, y_col1+20-EPSILON, 1.5*h],
+    #     [x_col1, y_col1+col_thick+EPSILON, 2*h+EPSILON], [x_col1, y_col1+20-EPSILON, 2*h+EPSILON], 
+    #     [x_col1+col_thick, y_col1+col_thick+EPSILON, 1.5*h], [x_col1+col_thick, y_col1+20-EPSILON, 1.5*h],
+    #     [x_col1+col_thick, y_col1+col_thick+EPSILON, 2*h+EPSILON], [x_col1+col_thick, y_col1+20-EPSILON, 2*h+EPSILON], 
+    # ])
+
+    # # Second obstacles
+    # colg3 = colg1 + np.array([5,-5, 0])
+    # cola3 = np.array([
+    #     [x_col1+5, y_col1-5, h+EPSILON], [x_col1+5+col_thick, y_col1-5, h+EPSILON], 
+    #     [x_col1+5, y_col1-5+col_thick, h+EPSILON], [x_col1+5+col_thick, y_col1-5+col_thick, h+EPSILON], 
+    #     [x_col1+5, y_col1-5, 5*h], [x_col1+5+col_thick, y_col1-5, 5*h], 
+    #     [x_col1+5, y_col1-5+col_thick, 5*h], [x_col1+5+col_thick, y_col1-5+col_thick, 5*h], 
+    # ])
+
+    # colg4 = colg3 + np.array([0,30, 0])
+    # cola4 = colg4 + np.array([0,0,h+EPSILON]) 
+    # cola5 = cola4 + np.array([0,0,h+EPSILON]) 
+
+    # bar2 = np.array([        
+    #     [x_col1+5, y_col1-5+col_thick+EPSILON, 2.5*h], [x_col1+5, y_col1+25-EPSILON, 2.5*h], 
+    #     [x_col1+5, y_col1-5+col_thick+EPSILON, 3*h+2*EPSILON], [x_col1+5, y_col1+25-EPSILON, 3*h+2*EPSILON], 
+    #     [x_col1+5+col_thick, y_col1-5+col_thick+EPSILON, 2.5*h], [x_col1+5+col_thick, y_col1+25-EPSILON, 2.5*h], 
+    #     [x_col1+5+col_thick, y_col1-5+col_thick+EPSILON, 3*h+2*EPSILON], [x_col1+5+col_thick, y_col1+25-EPSILON, 3*h+2*EPSILON], 
+    # ])
+
+    # bar3 = np.array([
+    #     [x_col1+5, y_col1-5+col_thick+EPSILON, 4.8*h], [x_col1+5, y_col1+15, 4.8*h], 
+    #     [x_col1+5, y_col1-5+col_thick+EPSILON, 5*h], [x_col1+5, y_col1+15, 5*h], 
+    #     [x_col1+col_thick+5, y_col1-5+col_thick+EPSILON, 4.8*h], [x_col1+col_thick+5, y_col1+15, 4.8*h], 
+    #     [x_col1+col_thick+5, y_col1-5+col_thick+EPSILON, 5*h], [x_col1+col_thick+5, y_col1+15, 5*h] 
+    # ])
+
+    gobs = [wall11, wall12, wall21, wall22, wall31, wall32, wall41, wall42]
+    aobs = [roof1, roof2]
+
+    S = (20,65,0)
+    T = (41,40,13)
+    visgraph = make_visibility_graph(gobs)
+    plot_visibility_graph(visgraph, gobs)
+
+    scenario = {
+        "S": S,
+        "T": T,
+        "ground_obstacles": gobs,
+        "aerial_obstacles": aobs,
+        "ground_vis_graph": visgraph,
+    }
+
+    with open(path, "wb") as f:
+        f.write(pkl.dumps(scenario))
+
+    with open(path, "rb") as f:
+        s = pkl.loads(f.read())
+
+    plot_scenario(s, "images/S2.png")
+
+
+def generate_S2_atttemp2(path):
+    
+    h = MARSUPIAL_HEIGHT
+    wall_thick = 2
+
+    x_wall1 = 10
+    y_wall1 = 40
+    wall11 = np.array([
+        [x_wall1, y_wall1, 0], [x_wall1, y_wall1+wall_thick, 0], 
+        [x_wall1+80, y_wall1, 0], [x_wall1+80, y_wall1+wall_thick, 0], 
+        [x_wall1, y_wall1, h], [x_wall1, y_wall1+wall_thick, h], 
+        [x_wall1+80, y_wall1, h], [x_wall1+80, y_wall1+wall_thick, h]  
+    ])
+    wall12 = wall11 + np.array([0,0,h+EPSILON])
+    wall21 = wall11 + np.array([0,10,0])
+    wall22 = wall12 + np.array([0,10,0])
+    
+
+    gobs = [wall11, wall12, wall21, wall22]
+    aobs = []
+
+    S = (20,65,0)
+    T = (41,40,13)
+    visgraph = make_visibility_graph(gobs)
+    plot_visibility_graph(visgraph, gobs)
+
+    scenario = {
+        "S": S,
+        "T": T,
+        "ground_obstacles": gobs,
+        "aerial_obstacles": aobs,
+        "ground_vis_graph": visgraph,
+    }
+
+    with open(path, "wb") as f:
+        f.write(pkl.dumps(scenario))
+
+    with open(path, "rb") as f:
+        s = pkl.loads(f.read())
+
+    plot_scenario(s, "images/S2.png")
+
+
+
+
+
 def get_random_instances(n_instances, ground_n, aerial_n, block_thick, board_size):
     
     h = MARSUPIAL_HEIGHT
@@ -196,13 +345,14 @@ def get_random_scenarios(n_scenarios, ground_n, aerial_n, n_instances, block_thi
 if __name__ == "__main__":
     
     # generate_S1("scenarios/S1.pkl")
+    generate_S2_atttemp2("scenarios/S2.pkl")
 
-    n = 1000
-    instances_n = 1
-    ground_n = 40 
-    aerial_n = 40
-    block_thick = 5 
-    board_size = (100,100,50)
-    path = "scenarios/random_scenarios.pkl"
+    # n = 1000
+    # instances_n = 1
+    # ground_n = 40 
+    # aerial_n = 40
+    # block_thick = 5 
+    # board_size = (100,100,50)
+    # path = "scenarios/random_scenarios.pkl"
     
-    get_random_scenarios(n, ground_n, aerial_n, instances_n, block_thick, board_size, path, plot=True)
+    # get_random_scenarios(n, ground_n, aerial_n, instances_n, block_thick, board_size, path, plot=True)

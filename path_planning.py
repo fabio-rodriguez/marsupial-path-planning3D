@@ -18,7 +18,7 @@ def path_planning_smpp(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, k_co
     tt += time.time()-t-t_error
     print("cvisible_tops", tt, "t error", t_error)
 
-    # CHECKPOINT # plot3D([{"point":S, "label":"S", "color":"k"}, {"point":T, "label":"T", "color":"r"}], ground_obs + aerial_obs, tops = cvisible_points)
+    # CHECKPOINT # plot3D([{"point":S, "label":"S", "color":"k"}, {"point":T, "label":"T", "color":"r"}], ground_obs + aerial_obs, tops = cvisible_tops)
 
     ###### UNCOMMENT UNDER FLOATING POINT ERRORS #######
 
@@ -47,24 +47,27 @@ def path_planning_smpp(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, k_co
 
     # CHECKPOINT # plot_dijkstra_graph(S, previous, ground_obs_proj)
     if Xopt == None:
-        minL = sys.maxsize
-        min_ctop_d = None
-        min_ctop = None    
-        for ctop, v in cvisible_tops.items():
-            w = weigths[tuple(ctop[:2])]
-            if w < minL:
-                min_ctop_d = {ctop: v}
-                min_ctop = ctop
-                minL = w
-    else:
-        minL = weigths[Xopt[:2]]
-        min_ctop = (*Xopt, 0)
-        min_ctop_d = {min_ctop: ground_points[Xopt]}
+        # plot3D([{"point":S, "label":"S", "color":"k"}, {"point":T, "label":"T", "color":"r"}], ground_obs + aerial_obs)
+        return None, None, tt, visibility
+        # minL = sys.maxsize
+        # min_ctop_d = None
+        # min_ctop = None    
+        # for ctop, v in cvisible_tops.items():
+        #     w = weigths[tuple(ctop[:2])]
+        #     if w < minL:
+        #         min_ctop_d = {ctop: v}
+        #         min_ctop = ctop
+        #         minL = w
+
+    # minL = weigths[Xopt[:2]]
+    min_ctop = (*Xopt, 0)
+    min_ctop_d = {min_ctop: ground_points[Xopt]}
 
     ground_path = build_path_to_goal(tuple(min_ctop[:2]), previous)
+    
     print("total time:", tt)
     print("gpath", path_length(ground_path), "apath", min_ctop_d[min_ctop]["length"])
-    print("paths sum", path_length(ground_path) + min_ctop_d[min_ctop]["length"])
+    print("paths sum", path_length(ground_path) + min_ctop_d[min_ctop]["length"], "checking:", weigths[tuple(min_ctop[:2])])
 
     # CHECKPOINT # 
     if plot:
@@ -138,7 +141,7 @@ def run_random_experiments(n, init=0):
                     tuple(S), tuple(T), 
                     si["ground_obstacles"],
                     si["aerial_obstacles"], 
-                    pi, qi, k_length, k_collision, i, visibility)
+                    pi, qi, k_length, k_collision, visibility=visibility)
 
 
                 print("visibility", i, len(list(visibility.keys())))
@@ -161,6 +164,6 @@ if __name__ == "__main__":
     
     # example()
 
-    run_random_experiments(100)
+    run_random_experiments(101, init=34)
 
     

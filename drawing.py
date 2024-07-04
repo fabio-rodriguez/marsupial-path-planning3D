@@ -32,6 +32,10 @@ def plot3D(points, obstacles, path_to_output=None, tops=None, ground_paths=None)
 
     for pts in obstacles:
 
+        print(pts)
+        print(len(pts), pts.shape)
+        print()
+        
         hull = ConvexHull(pts)
 
         # Plot defining corner points

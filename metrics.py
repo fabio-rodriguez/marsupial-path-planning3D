@@ -1,7 +1,9 @@
 
+import numpy as np
 import pickle as pkl
 
-def compute_random_metrics():
+
+def compute_metrics_random_exp():
     
     path = "scenarios/random_results.pkl"
     with open(path, "rb") as f:
@@ -39,13 +41,41 @@ def dict_append_value(d, key, val):
     return d
 
 
+def compute_metrics_random_exp2():
+    
+    paths = [
+        "scenarios/random_results_1-17.pkl",
+        "scenarios/random_results_18-25.pkl",
+        "scenarios/random_results_25-32.pkl"
+    ]
+
+    results = {}
+    for p in paths:
+        with open(p, "rb") as f:
+            r = pkl.loads(f.read())
+        
+        for ri in r:
+            for k, v in ri.items():
+                if k in results.keys():                
+                    results[k] = dict_append_value(results[k], 'gp_length', v['gp_length'])
+                    results[k] = dict_append_value(results[k], 'ap_length', v['ap_length'])
+                    results[k] = dict_append_value(results[k], 'tt', v['tt'])
+                else:
+                    results[k] = {'gp_length': [v['gp_length']], 'ap_length': [v['ap_length']], 'tt': [v['tt']]}
 
 
-# gp_length mean: 27.942751130696156 
-# ap_length mean: 36.08415522719455  
-# tt mean: 0.5368906673119993        
-# total path length  mean: 64.02690635789078
+    for k, v in results.items():
+        print("**************")
+        print(k)
+        for metric, value in v.items():
+            print(metric, "mean:", np.mean(value), "std:", np.std(value))
+        
+        tls = [gl+al for gl, al in zip(list(v['gp_length']), list(v['ap_length']))]
+        print("total path length mean:", np.mean(tls), "std:", np.std(tls))
+        print()
+
+
 
 if __name__ == "__main__":
 
-    compute_random_metrics()
+    compute_metrics_random_exp2()

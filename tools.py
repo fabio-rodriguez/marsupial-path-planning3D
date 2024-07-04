@@ -153,6 +153,9 @@ def upd_dijkstra_algorithm(start_node, goals, other_vertices, obstacles, visibil
                     shortest_path[node] = dist 
                     previous_nodes[node] = current
 
+        if len(previous_nodes) == 1:
+            break
+
     return None, shortest_path, previous_nodes, tt, visibility
 
 
