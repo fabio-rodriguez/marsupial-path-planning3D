@@ -19,8 +19,12 @@ def get_cvisible_tops(T, g_obs, a_obs, p, q, k_length, k_collision):
         tops = get_take_off_points(cradius, vp, q)
         # CHECKPOINT #  plot_vertical_plane(vp,T,tops) 
 
-        cvis_tops, ti = get_cvisible_tops2D(vp, tops, T, k_length, k_collision)
-        tt += ti
+        try:
+            cvis_tops, ti = get_cvisible_tops2D(vp, tops, T, k_length, k_collision)
+            tt += ti
+        except:
+            continue 
+        
         tops3D.update(cvis_tops)        
 
     return tops3D, tt

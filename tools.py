@@ -91,7 +91,10 @@ def lineq(p1, p2):
 
 # Inspired on:
 # https://www.udacity.com/blog/2021/10/implementing-dijkstras-algorithm-in-python.html
-def upd_dijkstra_algorithm(start_node, goals, other_vertices, obstacles):
+def upd_dijkstra_algorithm(start_node, goals, other_vertices, obstacles, visibility = None):
+
+    if visibility == None:
+        visibility = {}
 
     unvisited_nodes = [start_node] + list(goals.keys()) + [v for vlist in other_vertices for v in vlist ]
 
@@ -121,7 +124,7 @@ def upd_dijkstra_algorithm(start_node, goals, other_vertices, obstacles):
                 current = unvisited_nodes[i]
 
         if current in goals:
-            return current, shortest_path, previous_nodes, tt
+            return current, shortest_path, previous_nodes, tt, visibility
         
         unvisited_nodes.remove(current)
 
@@ -131,7 +134,11 @@ def upd_dijkstra_algorithm(start_node, goals, other_vertices, obstacles):
         for node in unvisited_nodes:
 
             t = time.time()
-            isvis = is_visible(current, node, obstacles) 
+            if (current, node) in visibility: 
+                isvis = visibility[(current, node)]
+            else:
+                isvis = is_visible(current, node, obstacles) 
+                visibility[(current, node)] = isvis 
             tt += time.time() - t
 
             if isvis:
@@ -146,7 +153,7 @@ def upd_dijkstra_algorithm(start_node, goals, other_vertices, obstacles):
                     shortest_path[node] = dist 
                     previous_nodes[node] = current
 
-    return None, shortest_path, previous_nodes, tt
+    return None, shortest_path, previous_nodes, tt, visibility
 
 
 # Given the numerical problems of pyvisgraph we must implement our own visibility

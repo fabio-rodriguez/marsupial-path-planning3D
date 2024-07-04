@@ -6,7 +6,7 @@ from drawing import *
 from tools import *
 
 
-def path_planning_smpp(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, k_collision=10, plot=False):
+def path_planning_smpp(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, k_collision=10, plot=False, visibility=None):
     """
         Planning algorithm based on Dijkstra apprach to reach B with the aerial vehicle starting from A with the ground vehicle
 
@@ -41,7 +41,7 @@ def path_planning_smpp(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, k_co
     ground_obs_proj, ground_obs_vertices = get_obstacles_proj_vertices(ground_obs)
     ground_points = {k[:2]:v for k,v in cvisible_tops.items()}
     t = time.time()
-    Xopt, weigths, previous, t_error = upd_dijkstra_algorithm(S, ground_points, ground_obs_vertices, ground_obs_proj)
+    Xopt, weigths, previous, t_error, visibility = upd_dijkstra_algorithm(S, ground_points, ground_obs_vertices, ground_obs_proj, visibility)
     tt += time.time()-t-t_error
     print("upd_dijkstra_algorithm", tt, "t error", t_error)
 
@@ -70,7 +70,7 @@ def path_planning_smpp(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, k_co
     if plot:
         plot_optimal_solution(S, T, min_ctop_d, ground_path, ground_obs, aerial_obs)
 
-    return path_length(ground_path), min_ctop_d[min_ctop]["length"], tt
+    return path_length(ground_path), min_ctop_d[min_ctop]["length"], tt, visibility
     
 
 def build_path_to_goal(point, previous):
@@ -107,7 +107,7 @@ def example():
         p, q, k_length, k_collision, True)
 
 
-def run_random_experiments():
+def run_random_experiments(n, init=0):
     
     path = "scenarios/random_scenarios.pkl"
     path_output = "scenarios/random_results_extended.pkl"
@@ -122,24 +122,36 @@ def run_random_experiments():
     k_collision = 50
 
     results = []
-    for si in s:
+    
+    for i in range(init, n):
+        si = s[i]
         r = {}
+        visibility = None
         for pi in p:    
             for qi in q:
                 S = si["S"] + np.random.rand(3) # Avoid numerical errors
                 T = si["T"] + np.random.rand(3) # Avoid numerical errors
                 
+<<<<<<< HEAD
                 try:
                     gl, al, tt = path_planning_smpp(
                         tuple(S), tuple(T), 
                         si["ground_obstacles"],
                         si["aerial_obstacles"], 
                         pi, qi, k_length, k_collision)
+=======
+                gl, al, tt, visibility = path_planning_smpp(
+                    tuple(S), tuple(T), 
+                    si["ground_obstacles"],
+                    si["aerial_obstacles"], 
+                    pi, qi, k_length, k_collision, i, visibility)
+>>>>>>> e1e32e7b9e09f3c0790f2d727de2c70e69c524ca
 
-                    r[(pi,qi)] = {"gp_length": gl, "ap_length": al, "tt": tt}
-                except:
-                    continue
 
+                print("visibility", i, len(list(visibility.keys())))
+
+                r[(pi,qi)] = {"gp_length": gl, "ap_length": al, "tt": tt, "scenario": i}
+                
         results.append(r)
 
         with open(path_output, "wb") as f:
@@ -156,6 +168,6 @@ if __name__ == "__main__":
     
     # example()
 
-    run_random_experiments()
+    run_random_experiments(100)
 
     
