@@ -82,6 +82,135 @@ def generate_S1(path):
     plot_scenario(s, "images/S1.png")
 
 
+def generate_S2(path):
+    
+    h = MARSUPIAL_HEIGHT
+    wall_thick = 3
+    roof_thick = 1
+
+    # First obstacles
+    wallg1 = np.array([
+        [0, 0, 0], [0, wall_thick, 0], [70, 0, 0], [70, wall_thick, 0], 
+        [0, 0, h], [0, wall_thick, h], [70, 0, h], [70, wall_thick, h] 
+    ])
+    wallg2 = wallg1 + np.array([0,10+wall_thick,0])
+
+    walla1 = wallg1 + np.array([0,0,h+EPSILON])
+    walla2 = wallg2 + np.array([0,0,h+EPSILON])
+
+    roof1 = np.array([
+        [0,0,2*h+EPSILON], [0,10+2*wall_thick,2*h+EPSILON], [30,0,2*h+EPSILON], [30,10+2*wall_thick,2*h+EPSILON], 
+        [0,0,2*h+EPSILON+roof_thick], [0,10+2*wall_thick,2*h+EPSILON+roof_thick], [30,0,2*h+EPSILON+roof_thick], [30,10+2*wall_thick,2*h+EPSILON+roof_thick], 
+    ])
+    roof2 = roof1 + np.array([40,0,0])
+
+    chimney1 = np.array([
+        [30+EPSILON,0,2*h+EPSILON], [40-EPSILON,0,2*h+EPSILON], [30+EPSILON,wall_thick,2*h+EPSILON], [40-EPSILON,wall_thick,2*h+EPSILON],
+        [30+EPSILON,0,5*h], [40-EPSILON,0,5*h], [30+EPSILON,wall_thick,5*h], [40-EPSILON,wall_thick,5*h],
+    ]) 
+    chimney2 = chimney1 + np.array([0,10+wall_thick,0])
+
+    chimney3 = np.array([
+        [30-wall_thick,0,2*h+2*EPSILON], [30-EPSILON,0,2*h+2*EPSILON], 
+        [30-wall_thick, 10+2*wall_thick ,2*h+2*EPSILON], [30-EPSILON, 10+2*wall_thick ,2*h+2*EPSILON], 
+        [30-wall_thick,0,5*h], [30-EPSILON,0,5*h], 
+        [30-wall_thick, 10+2*wall_thick ,5*h], [30-EPSILON, 10+2*wall_thick ,5*h],         
+    ]) 
+    chimney4 = chimney3 + np.array([10+wall_thick+2*EPSILON,0,0]) 
+    
+    gobs = [wallg1, wallg2]
+    aobs = [walla1, walla2, roof1, roof2, chimney1, chimney2, chimney3, chimney4]
+
+    S = (20,65,0)
+    T = (35,5 + wall_thick, 5.2*h)
+    visgraph = make_visibility_graph(gobs)
+    plot_visibility_graph(visgraph, gobs)
+
+    scenario = {
+        "S": S,
+        "T": T,
+        "ground_obstacles": gobs,
+        "aerial_obstacles": aobs,
+        "ground_vis_graph": visgraph,
+    }
+
+    with open(path, "wb") as f:
+        f.write(pkl.dumps(scenario))
+
+    with open(path, "rb") as f:
+        s = pkl.loads(f.read())
+
+    plot_scenario(s, "images/S2.png")
+
+
+def generate_S3(path):
+    
+    h = MARSUPIAL_HEIGHT
+    wall_thick = 3
+    roof_thick = 1
+
+    wallg1 = np.array([
+        [0,0,0], [70,0,0], [0,wall_thick,0], [70,wall_thick,0],
+        [0,0,h], [70,0,h], [0,wall_thick,h], [70,wall_thick,h]
+    ])
+    wallg2 = np.array([
+        [0,wall_thick+EPSILON,0], [wall_thick,wall_thick+EPSILON,0],
+        [0,70-2*EPSILON-wall_thick,0], [wall_thick,70-2*EPSILON-wall_thick,0], 
+        [0,wall_thick+EPSILON,h], [wall_thick,wall_thick+EPSILON,h],
+        [0,70-2*EPSILON-wall_thick,h], [wall_thick,70-2*EPSILON-wall_thick,h], 
+    ])
+    wallg3 = wallg1 + np.array([0, 70 - wall_thick, 0])
+    wallg4 = wallg2 + np.array([70 - wall_thick, 0, 0])
+
+    squareg1 = np.array([
+        [20,10,0], [50,10,0], [20,60,0], [50,60,0],
+        [20,10,h], [50,10,h], [20,60,h], [50,60,h],  
+    ])
+
+    squarea1 = np.array([
+        [20,10,h+EPSILON], [50,10,h+EPSILON], [20,60,h+EPSILON], [50,60,h+EPSILON],  
+        [20,10,15*h], [50,10,15*h], [20,60,15*h], [50,60,15*h],
+    ])
+
+    balcony1 = np.array([
+        [5,20,8*h], [20-EPSILON,20,8*h], [5,50,8*h], [20-EPSILON,50,8*h],   
+        [5,20,8*h+wall_thick], [20-EPSILON,20,8*h+wall_thick], [5,50,8*h+wall_thick], [20-EPSILON,50,8*h+wall_thick],   
+    ])
+    balcony2 = balcony1 + np.array([45+EPSILON,0,0])
+
+    walla1 = np.array([
+        [5,20,8*h+wall_thick+EPSILON], [20-EPSILON,20,8*h+wall_thick+EPSILON], [5,20+wall_thick,8*h+wall_thick+EPSILON], [20-EPSILON,20+wall_thick,8*h+wall_thick+EPSILON],   
+        [5,20,12*h], [20-EPSILON,20,12*h], [5,20+wall_thick,12*h], [20-EPSILON,20+wall_thick,12*h],   
+    ])
+    walla2 = walla1 + np.array([0,30-wall_thick, 0])
+    walla3 = walla1 + np.array([45+EPSILON,0,0])
+    walla4 = walla2 + np.array([45+EPSILON,0,0])
+
+    gobs = [wallg1, wallg2, wallg3, wallg4, squareg1]
+    aobs = [squarea1, balcony1, balcony2, walla1, walla2, walla3, walla4]
+
+    S = (35,-50,0)
+    T1 = (10,30, 12*h)
+    T2 = (60,30, 12*h)
+    
+    scenario = {
+        "S": S,
+        "T": [T1, T2],
+        "ground_obstacles": gobs,
+        "aerial_obstacles": aobs,
+        "ground_vis_graph": None,
+    }
+
+    with open(path, "wb") as f:
+        f.write(pkl.dumps(scenario))
+
+    with open(path, "rb") as f:
+        s = pkl.loads(f.read())
+
+    plot_scenario_multitarget(s, "images/S3.png")
+
+
+
 def get_random_instances(n_instances, ground_n, aerial_n, block_thick, board_size):
     
     h = MARSUPIAL_HEIGHT
@@ -196,13 +325,15 @@ def get_random_scenarios(n_scenarios, ground_n, aerial_n, n_instances, block_thi
 if __name__ == "__main__":
     
     # generate_S1("scenarios/S1.pkl")
+    # generate_S2("scenarios/S2.pkl")
+    generate_S3("scenarios/S3.pkl")
 
-    n = 1000
-    instances_n = 1
-    ground_n = 40 
-    aerial_n = 40
-    block_thick = 5 
-    board_size = (100,100,50)
-    path = "scenarios/random_scenarios.pkl"
+    # n = 1000
+    # instances_n = 1
+    # ground_n = 40 
+    # aerial_n = 40
+    # block_thick = 5 
+    # board_size = (100,100,50)
+    # path = "scenarios/random_scenarios.pkl"
     
-    get_random_scenarios(n, ground_n, aerial_n, instances_n, block_thick, board_size, path, plot=True)
+    # get_random_scenarios(n, ground_n, aerial_n, instances_n, block_thick, board_size, path, plot=True)

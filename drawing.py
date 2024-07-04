@@ -21,14 +21,27 @@ def plot_scenario(scenario, path=None):
         scenario["ground_obstacles"]+scenario["aerial_obstacles"], path_to_output=path)
 
 
+def plot_scenario_multitarget(scenario, path=None):
+    
+    targets = [
+        {
+            "point":ti, 
+            "label":f"T{i+1}", "color":"r"
+        }  for i, ti in enumerate(scenario["T"])] 
+
+    plot3D([
+        {
+            "point":scenario["S"], 
+            "label":"S", "color":"k"
+        }] + targets, 
+        scenario["ground_obstacles"]+scenario["aerial_obstacles"], path_to_output=path)
+
+
 def plot3D(points, obstacles, path_to_output=None, tops=None, ground_paths=None):
 
     # 8 points defining the cube corners
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
-
-    for p in points:
-        ax.plot([p["point"][0]], [p["point"][1]], [p["point"][2]], "o", color=p["color"], label=p["label"])  
 
     for pts in obstacles:
 
@@ -47,6 +60,10 @@ def plot3D(points, obstacles, path_to_output=None, tops=None, ground_paths=None)
         # Make axis label
         for i in ["x", "y", "z"]:
             eval("ax.set_{:s}label('{:s}')".format(i, i))
+
+    for p in points:
+        ax.plot([p["point"][0]], [p["point"][1]], [p["point"][2]], "o", color=p["color"], label=p["label"])  
+
 
     if tops:
         for top, values in tops.items():
