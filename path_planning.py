@@ -162,6 +162,6 @@ if __name__ == "__main__":
     
     # example()
 
-    run_random_experiments(101, init=75)
+    run_random_experiments(1000, init=107)
 
     
