@@ -162,6 +162,11 @@ def generate_S3(path):
     wallg3 = wallg1 + np.array([0, 70 - wall_thick, 0])
     wallg4 = wallg2 + np.array([70 - wall_thick, 0, 0])
 
+    # walla1 = wallg1 + np.array([0,0,8*h])
+    walla2 = wallg2 + np.array([0,0,8*h])
+    # walla3 = wallg3 + np.array([0,0,8*h])
+    walla4 = wallg4 + np.array([0,0,8*h])
+
     squareg1 = np.array([
         [20,10,0], [50,10,0], [20,60,0], [50,60,0],
         [20,10,h], [50,10,h], [20,60,h], [50,60,h],  
@@ -178,20 +183,98 @@ def generate_S3(path):
     ])
     balcony2 = balcony1 + np.array([45+EPSILON,0,0])
 
-    walla1 = np.array([
+    walla5 = np.array([
         [5,20,8*h+wall_thick+EPSILON], [20-EPSILON,20,8*h+wall_thick+EPSILON], [5,20+wall_thick,8*h+wall_thick+EPSILON], [20-EPSILON,20+wall_thick,8*h+wall_thick+EPSILON],   
         [5,20,12*h], [20-EPSILON,20,12*h], [5,20+wall_thick,12*h], [20-EPSILON,20+wall_thick,12*h],   
     ])
-    walla2 = walla1 + np.array([0,30-wall_thick, 0])
-    walla3 = walla1 + np.array([45+EPSILON,0,0])
-    walla4 = walla2 + np.array([45+EPSILON,0,0])
+    walla6 = walla5 + np.array([0,30-wall_thick, 0])
+    walla7 = walla5 + np.array([45+EPSILON,0,0])
+    walla8 = walla6 + np.array([45+EPSILON,0,0])
+
+
 
     gobs = [wallg1, wallg2, wallg3, wallg4, squareg1]
-    aobs = [squarea1, balcony1, balcony2, walla1, walla2, walla3, walla4]
+    aobs = [squarea1, balcony1, balcony2,  walla2,  walla4, walla5, walla6, walla7, walla8]
 
     S = (35,-50,0)
-    T1 = (10,30, 12*h)
-    T2 = (60,30, 12*h)
+    T1 = (5,30, 12*h)
+    T2 = (65,30, 12*h)
+    
+    scenario = {
+        "S": S,
+        "T": [T1, T2],
+        "ground_obstacles": gobs,
+        "aerial_obstacles": aobs,
+        "ground_vis_graph": None,
+    }
+
+    with open(path, "wb") as f:
+        f.write(pkl.dumps(scenario))
+
+    with open(path, "rb") as f:
+        s = pkl.loads(f.read())
+
+    plot_scenario_multitarget(s, "images/S3.png")
+
+
+
+def generate_S32(path):
+    
+    h = MARSUPIAL_HEIGHT
+    wall_thick = 3
+    roof_thick = 1
+
+    wallg1 = np.array([
+        [0,0,0], [70,0,0], [0,wall_thick,0], [70,wall_thick,0],
+        [0,0,h], [70,0,h], [0,wall_thick,h], [70,wall_thick,h]
+    ])
+    wallg2 = np.array([
+        [0,wall_thick+EPSILON,0], [wall_thick,wall_thick+EPSILON,0],
+        [0,70-2*EPSILON-wall_thick,0], [wall_thick,70-2*EPSILON-wall_thick,0], 
+        [0,wall_thick+EPSILON,h], [wall_thick,wall_thick+EPSILON,h],
+        [0,70-2*EPSILON-wall_thick,h], [wall_thick,70-2*EPSILON-wall_thick,h], 
+    ])
+    wallg3 = wallg1 + np.array([0, 70 - wall_thick, 0])
+    wallg4 = wallg2 + np.array([70 - wall_thick, 0, 0])
+
+
+    # walla1 = wallg1 + np.array([0,0,8*h])
+    walla2 = wallg2 + np.array([0,0,8*h])
+    # walla3 = wallg3 + np.array([0,0,8*h])
+    walla4 = wallg4 + np.array([0,0,8*h])
+
+    squareg1 = np.array([
+        [20,10,0], [50,10,0], [20,60,0], [50,60,0],
+        [20,10,h], [50,10,h], [20,60,h], [50,60,h],  
+    ])
+
+    squarea1 = np.array([
+        [20,10,h+EPSILON], [50,10,h+EPSILON], [20,60,h+EPSILON], [50,60,h+EPSILON],  
+        [20,10,15*h], [50,10,15*h], [20,60,15*h], [50,60,15*h],
+    ])
+
+    balcony1 = np.array([
+        [5,20,8*h], [20-EPSILON,20,8*h], [5,50,8*h], [20-EPSILON,50,8*h],   
+        [5,20,8*h+wall_thick], [20-EPSILON,20,8*h+wall_thick], [5,50,8*h+wall_thick], [20-EPSILON,50,8*h+wall_thick],   
+    ])
+    balcony2 = balcony1 + np.array([45+EPSILON,0,0])
+
+    walla5 = np.array([
+        [5,20,8*h+wall_thick+EPSILON], [20-EPSILON,20,8*h+wall_thick+EPSILON], [5,20+wall_thick,8*h+wall_thick+EPSILON], [20-EPSILON,20+wall_thick,8*h+wall_thick+EPSILON],   
+        [5,20,12*h], [20-EPSILON,20,12*h], [5,20+wall_thick,12*h], [20-EPSILON,20+wall_thick,12*h],   
+    ])
+    walla6 = walla5 + np.array([0,30-wall_thick, 0])
+    walla7 = walla5 + np.array([45+EPSILON,0,0])
+    walla8 = walla6 + np.array([45+EPSILON,0,0])
+
+
+
+    gobs = [wallg1, wallg2, wallg3, wallg4, squareg1]
+    aobs = [squarea1, balcony1, balcony2,  walla2,  walla4, walla5, walla6, walla7, walla8]
+
+    S = (35,-50,0)
+    T1 = (5,30, 12*h)
+    T2 = (65,30, 12*h)
     
     scenario = {
         "S": S,
@@ -326,7 +409,7 @@ if __name__ == "__main__":
     
     # generate_S1("scenarios/S1.pkl")
     # generate_S2("scenarios/S2.pkl")
-    generate_S3("scenarios/S3.pkl")
+    generate_S32("scenarios/S3.pkl")
 
     # n = 1000
     # instances_n = 1
