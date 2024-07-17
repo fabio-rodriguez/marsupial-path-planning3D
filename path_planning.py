@@ -119,7 +119,7 @@ def run_random_experiments(n, init=0):
     p = [4, 8, 16, 32]
     q = [20, 40, 60, 80, 100]
 
-    k_length= 72 
+    k_length= 52 
     k_collision = 50
 
     results = []

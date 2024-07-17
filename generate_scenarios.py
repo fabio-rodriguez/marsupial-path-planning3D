@@ -294,7 +294,7 @@ def generate_S32(path):
 
 
 
-def get_random_instances(ground_n, aerial_n, block_thick, board_size):
+def get_random_instances(ground_n, aerial_n, block_thick, board_size, minh = 25):
     
     h = MARSUPIAL_HEIGHT
     xmax, ymax, zmax = board_size
@@ -338,7 +338,7 @@ def get_random_instances(ground_n, aerial_n, block_thick, board_size):
             a_main_vertices.append(np.array((x,y,z)))
 
     a_main_vertices.sort(key=lambda p: p[-1], reverse=True)
-    target_point = a_main_vertices[0]
+    target_point = (*a_main_vertices[0][:2], max(a_main_vertices[0][-1], minh)) 
 
     if euclidian_distance_lists(target_point, np.zeros((3,))) > euclidian_distance_lists(target_point, np.array([xmax, ymax, 0])):  
         starting_point = np.zeros((3,))
