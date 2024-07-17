@@ -19,13 +19,11 @@ def get_cvisible_tops(T, g_obs, a_obs, p, q, k_length, k_collision):
         tops = get_take_off_points(cradius, vp, q)
         # CHECKPOINT #  plot_vertical_plane(vp,T,tops) 
 
-        try:
-            cvis_tops, ti = get_cvisible_tops2D(vp, tops, T, k_length, k_collision)
-            tt += ti
-        except:
-            continue 
-        
-        tops3D.update(cvis_tops)        
+        cvis_tops, ti = get_cvisible_tops2D(vp, tops, T, k_length, k_collision)
+        tt += ti
+
+        if cvis_tops != None:
+            tops3D.update(cvis_tops)        
 
     return tops3D, tt
 
@@ -86,9 +84,12 @@ def get_cvisible_tops2D(vplane, tops, T, k_length, k_collision):
         obs_proj.append(gch.points[gch.vertices])
 
     vertices_lists = [[T_proj]] + tops_proj + obs_proj
-    t = time.time()
-    visgraph = make_visibility_graph(vertices_lists)
-    tt += time.time() - t
+    try:
+        t = time.time()
+        visgraph = make_visibility_graph(vertices_lists)
+        tt += time.time() - t
+    except:
+        return None, tt
 
     # CHECKPOINT # plot_visibility_graph(visgraph, obs_proj)
 

@@ -47,8 +47,6 @@ def path_planning_smpp(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, k_co
 
     # CHECKPOINT # plot_dijkstra_graph(S, previous, ground_obs_proj)
     if Xopt == None:
-        # plot3D([{"point":S, "label":"S", "color":"k"}, {"point":T, "label":"T", "color":"r"}], ground_obs + aerial_obs)
-        return None, None, tt, visibility
         # minL = sys.maxsize
         # min_ctop_d = None
         # min_ctop = None    
@@ -58,13 +56,13 @@ def path_planning_smpp(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, k_co
         #         min_ctop_d = {ctop: v}
         #         min_ctop = ctop
         #         minL = w
-
-    # minL = weigths[Xopt[:2]]
-    min_ctop = (*Xopt, 0)
-    min_ctop_d = {min_ctop: ground_points[Xopt]}
+        return None, None, None, visibility
+    else:
+        # minL = weigths[Xopt[:2]]
+        min_ctop = (*Xopt, 0)
+        min_ctop_d = {min_ctop: ground_points[Xopt]}
 
     ground_path = build_path_to_goal(tuple(min_ctop[:2]), previous)
-    
     print("total time:", tt)
     print("gpath", path_length(ground_path), "apath", min_ctop_d[min_ctop]["length"])
     print("paths sum", path_length(ground_path) + min_ctop_d[min_ctop]["length"], "checking:", weigths[tuple(min_ctop[:2])])
@@ -118,10 +116,10 @@ def run_random_experiments(n, init=0):
     with open(path, "rb") as f:
         s = pkl.loads(f.read())
 
-    p = [180]
-    q = [100]
+    p = [4, 8, 16, 32]
+    q = [20, 40, 60, 80, 100]
 
-    k_length= 20 
+    k_length= 72 
     k_collision = 50
 
     results = []
@@ -132,6 +130,7 @@ def run_random_experiments(n, init=0):
         visibility = None
         for pi in p:    
             for qi in q:
+                print(pi, qi)
                 S = si["S"] + np.random.rand(3) # Avoid numerical errors
                 T = si["T"] + np.random.rand(3) # Avoid numerical errors
                 
@@ -139,7 +138,7 @@ def run_random_experiments(n, init=0):
                     tuple(S), tuple(T), 
                     si["ground_obstacles"],
                     si["aerial_obstacles"], 
-                    pi, qi, k_length, k_collision, visibility=visibility)
+                    pi, qi, k_length, k_collision,plot=False,visibility=visibility)
 
 
                 print("visibility", i, len(list(visibility.keys())))
@@ -162,6 +161,6 @@ if __name__ == "__main__":
     
     # example()
 
-    run_random_experiments(1000, init=107)
+    run_random_experiments(1000, init=57)
 
     

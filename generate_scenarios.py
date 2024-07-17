@@ -294,7 +294,7 @@ def generate_S32(path):
 
 
 
-def get_random_instances(n_instances, ground_n, aerial_n, block_thick, board_size):
+def get_random_instances(ground_n, aerial_n, block_thick, board_size):
     
     h = MARSUPIAL_HEIGHT
     xmax, ymax, zmax = board_size
@@ -308,9 +308,9 @@ def get_random_instances(n_instances, ground_n, aerial_n, block_thick, board_siz
     
     g_main_vertices = []
     iter = 0
-    while iter<MAX_ITERS and len(g_main_vertices)<ground_n+n_instances:
-        x = random.randint(0, xmax-block_thick)
-        y = random.randint(0, ymax-block_thick)
+    while iter<MAX_ITERS and len(g_main_vertices)<ground_n:
+        x = random.randint(0, xmax-block_thick-1)
+        y = random.randint(0, ymax-block_thick-1)
 
         if is_disjoint_vertex_ground((x,y), g_main_vertices):
             g_main_vertices.append(np.array((x,y,0)))
@@ -324,7 +324,7 @@ def get_random_instances(n_instances, ground_n, aerial_n, block_thick, board_siz
     
     a_main_vertices = []
     iter = 0
-    while iter<MAX_ITERS and len(a_main_vertices)<aerial_n+n_instances:
+    while iter<MAX_ITERS and len(a_main_vertices)<aerial_n+1:
         x = random.randint(0, xmax-block_thick)
         y = random.randint(0, ymax-block_thick)
         z = random.randint(h, zmax-block_thick)
@@ -335,8 +335,13 @@ def get_random_instances(n_instances, ground_n, aerial_n, block_thick, board_siz
     random.shuffle(g_main_vertices)
     random.shuffle(a_main_vertices)
 
-    starting_points = g_main_vertices[:n_instances]
-    target_points = a_main_vertices[:n_instances]
+    a_main_vertices.sort(key=lambda p: p[-1], reverse=True)
+    target_points = a_main_vertices[:1]
+
+    if euclidian_distance_lists(target_points[0], np.zeros((3,))) > euclidian_distance_lists(target_points[0], np.array([xmax, ymax, 0])):  
+        starting_points = [np.zeros((3,))]
+    else:
+        starting_points = [np.array([xmax, ymax,0])]
 
     # Get Obstacles
     get_obs = lambda vlist: [np.array([
@@ -346,8 +351,8 @@ def get_random_instances(n_instances, ground_n, aerial_n, block_thick, board_siz
         v+np.array([block_thick,block_thick,0]), v+np.array([block_thick,block_thick,0]) + side 
         ]) for v in vlist]
 
-    gobs = get_obs(g_main_vertices[n_instances:])
-    aobs = get_obs(a_main_vertices[n_instances:])
+    gobs = get_obs(g_main_vertices)
+    aobs = get_obs(a_main_vertices[1:])
 
     # gobs = [np.array([
     #     v, v + side, 
@@ -366,22 +371,21 @@ def get_random_instances(n_instances, ground_n, aerial_n, block_thick, board_siz
     return starting_points, target_points, gobs, aobs    
 
 
-def get_random_scenarios(n_scenarios, ground_n, aerial_n, n_instances, block_thick, board_size, path, plot=None):
+def get_random_scenarios(n_scenarios, ground_n, aerial_n, block_thick, board_size, path, plot=None):
 
     rscenarios = []
     for i in range(n_scenarios):
 
-        spoints, tpoints, gobs, aobs = get_random_instances(n_instances, ground_n, aerial_n, block_thick, board_size)
+        spoints, tpoints, gobs, aobs = get_random_instances(ground_n, aerial_n, block_thick, board_size)
         # visgraph = make_visibility_graph(gobs)
-        for j in range(n_instances):
-            s = {
-                "S": spoints[j],
-                "T": tpoints[j],
-                "ground_obstacles": gobs,
-                "aerial_obstacles": aobs
-                # "ground_vis_graph": visgraph,
-            }
-            rscenarios.append(s)
+        s = {
+            "S": spoints[0],
+            "T": tpoints[0],
+            "ground_obstacles": gobs,
+            "aerial_obstacles": aobs
+            # "ground_vis_graph": visgraph,
+        }
+        rscenarios.append(s)
 
     with open(path, "wb") as f:
         f.write(pkl.dumps(rscenarios))
@@ -409,14 +413,13 @@ if __name__ == "__main__":
     
     # generate_S1("scenarios/S1.pkl")
     # generate_S2("scenarios/S2.pkl")
-    generate_S32("scenarios/S3.pkl")
+    # generate_S32("scenarios/S3.pkl")
 
-    # n = 1000
-    # instances_n = 1
-    # ground_n = 40 
-    # aerial_n = 40
-    # block_thick = 5 
-    # board_size = (100,100,50)
-    # path = "scenarios/random_scenarios.pkl"
+    n = 1000
+    ground_n = 15 
+    aerial_n = 15
+    block_thick = 5 
+    board_size = (50,50,40)
+    path = "scenarios/random_scenarios.pkl"
     
-    # get_random_scenarios(n, ground_n, aerial_n, instances_n, block_thick, board_size, path, plot=True)
+    get_random_scenarios(n, ground_n, aerial_n, block_thick, board_size, path, plot=False)
