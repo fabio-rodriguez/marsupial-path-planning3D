@@ -303,8 +303,9 @@ def get_random_instances(ground_n, aerial_n, block_thick, board_size):
     ## Ground Obstacles
     is_disjoint_vertex_ground = lambda p, vlist: not any(map(
         lambda v: 
-            v[0] <= p[0] <= v[0]+block_thick and 
-            v[1] <= p[1] <= v[1]+block_thick, vlist))     
+            euclidian_distance(p, v[:2]) < 2*block_thick, vlist))
+            # (v[0] <= p[0] <= v[0]+block_thick and v[1] <= p[1] <= v[1]+block_thick) or 
+            # (p[0] <= v[0] <= p[0]+block_thick and p[1] <= v[1] <= p[1]+block_thick), vlist))     
     
     g_main_vertices = []
     iter = 0
@@ -318,9 +319,13 @@ def get_random_instances(ground_n, aerial_n, block_thick, board_size):
     ## Aerial Obstacles
     is_disjoint_vertex_air = lambda p, vlist: not any(map(
         lambda v: 
-            v[0] <= p[0] <= v[0]+block_thick and 
-            v[1] <= p[1] <= v[1]+block_thick and
-            v[2] <= p[2] <= v[2]+block_thick , vlist))     
+            euclidian_distance(p, v) < 2*block_thick, vlist))
+            # (v[0] <= p[0] <= v[0]+block_thick and 
+            # v[1] <= p[1] <= v[1]+block_thick and
+            # v[2] <= p[2] <= v[2]+block_thick) or 
+            # (p[0] <= v[0] <= p[0]+block_thick and 
+            # p[1] <= v[1] <= p[1]+block_thick and
+            # p[2] <= v[2] <= p[2]+block_thick), vlist))     
     
     a_main_vertices = []
     iter = 0
@@ -329,19 +334,16 @@ def get_random_instances(ground_n, aerial_n, block_thick, board_size):
         y = random.randint(0, ymax-block_thick)
         z = random.randint(h, zmax-block_thick)
 
-        if is_disjoint_vertex_air((x,y,z), g_main_vertices):
+        if is_disjoint_vertex_air((x,y,z), a_main_vertices):
             a_main_vertices.append(np.array((x,y,z)))
 
-    random.shuffle(g_main_vertices)
-    random.shuffle(a_main_vertices)
-
     a_main_vertices.sort(key=lambda p: p[-1], reverse=True)
-    target_points = a_main_vertices[:1]
+    target_point = a_main_vertices[0]
 
-    if euclidian_distance_lists(target_points[0], np.zeros((3,))) > euclidian_distance_lists(target_points[0], np.array([xmax, ymax, 0])):  
-        starting_points = [np.zeros((3,))]
+    if euclidian_distance_lists(target_point, np.zeros((3,))) > euclidian_distance_lists(target_point, np.array([xmax, ymax, 0])):  
+        starting_point = np.zeros((3,))
     else:
-        starting_points = [np.array([xmax, ymax,0])]
+        starting_point = np.array([xmax, ymax,0])
 
     # Get Obstacles
     get_obs = lambda vlist: [np.array([
@@ -368,7 +370,7 @@ def get_random_instances(ground_n, aerial_n, block_thick, board_size):
     #     v+np.array(block_thick,block_thick,0), v+np.array(block_thick,block_thick,0) + side 
     #     ]) for v in a_main_vertices[n_instances:]]
 
-    return starting_points, target_points, gobs, aobs    
+    return starting_point, target_point, gobs, aobs    
 
 
 def get_random_scenarios(n_scenarios, ground_n, aerial_n, block_thick, board_size, path, plot=None):
@@ -376,11 +378,11 @@ def get_random_scenarios(n_scenarios, ground_n, aerial_n, block_thick, board_siz
     rscenarios = []
     for i in range(n_scenarios):
 
-        spoints, tpoints, gobs, aobs = get_random_instances(ground_n, aerial_n, block_thick, board_size)
+        spoint, tpoint, gobs, aobs = get_random_instances(ground_n, aerial_n, block_thick, board_size)
         # visgraph = make_visibility_graph(gobs)
         s = {
-            "S": spoints[0],
-            "T": tpoints[0],
+            "S": spoint,
+            "T": tpoint,
             "ground_obstacles": gobs,
             "aerial_obstacles": aobs
             # "ground_vis_graph": visgraph,
@@ -416,7 +418,7 @@ if __name__ == "__main__":
     # generate_S32("scenarios/S3.pkl")
 
     n = 1000
-    ground_n = 15 
+    ground_n = 10 
     aerial_n = 15
     block_thick = 5 
     board_size = (50,50,40)
