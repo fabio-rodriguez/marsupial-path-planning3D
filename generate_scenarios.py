@@ -121,7 +121,7 @@ def generate_S2(path):
     gobs = [wallg1, wallg2]
     aobs = [walla1, walla2, roof1, roof2, chimney1, chimney2, chimney3, chimney4]
 
-    S = (20,65,0)
+    S = (20,40,0)
     T = (35,5 + wall_thick, 5.2*h)
     visgraph = make_visibility_graph(gobs)
     plot_visibility_graph(visgraph, gobs)
@@ -217,7 +217,6 @@ def generate_S3(path):
     plot_scenario_multitarget(s, "images/S3.png")
 
 
-
 def generate_S32(path):
     
     h = MARSUPIAL_HEIGHT
@@ -278,7 +277,7 @@ def generate_S32(path):
     gobs = [wallg1, wallg2, wallg3, wallg4, squareg1]
     aobs = [squarea1, balcony1, balcony2,  walla2,  walla4, walla5, walla6, walla7, walla8]
 
-    S = (35,-50,0)
+    S = (10,-50,0)
     T1 = (6,30, 12*h)
     T2 = (64,30, 12*h)
     
@@ -420,8 +419,8 @@ def get_random_scenarios(n_scenarios, ground_n, aerial_n, block_thick, board_siz
 if __name__ == "__main__":
     
     # generate_S1("scenarios/S1.pkl")
-    # generate_S2("scenarios/S2.pkl")
-    generate_S32("scenarios/S3.pkl")
+    generate_S2("scenarios/S2.pkl")
+    # generate_S32("scenarios/S3.pkl")
 
     n = 1000
     ground_n = 10 

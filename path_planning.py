@@ -74,6 +74,45 @@ def path_planning_smpp(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, k_co
     return path_length(ground_path), min_ctop_d[min_ctop]["length"], tt, visibility
     
 
+
+def path_planning_bf(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, k_collision=10, plot=False, visibility=None):
+    """
+        Planning algorithm based on Dijkstra apprach to reach B with the aerial vehicle starting from A with the ground vehicle
+
+        The visibility graph can be partially pre-computed
+    """
+    tt = 0
+    t = time.time()
+    tops, t_error = get_tops_bf(T, ground_obs, aerial_obs,  p, q, k_length, k_collision)
+    tt += time.time()-t-t_error
+    print("cvisible_tops", tt, "t error", t_error)
+
+    ground_obs_proj, ground_obs_vertices = get_obstacles_proj_vertices(ground_obs)
+    ground_points = {k[:2]:v for k,v in tops.items()}
+    t = time.time()
+    Xopt, weigths, previous, t_error, visibility = upd_dijkstra_algorithm(S, ground_points, ground_obs_vertices, ground_obs_proj, visibility)
+    tt += time.time()-t-t_error
+    print("upd_dijkstra_algorithm", tt, "t error", t_error)
+
+    if Xopt == None:
+        return None, None, None, visibility
+    else:
+        min_ctop = (*Xopt, 0)
+        min_ctop_d = {min_ctop: ground_points[Xopt]}
+
+    ground_path = build_path_to_goal(tuple(min_ctop[:2]), previous)
+    print("total time:", tt)
+    print("gpath", path_length(ground_path), "apath", min_ctop_d[min_ctop]["length"])
+    print("paths sum", path_length(ground_path) + min_ctop_d[min_ctop]["length"], "checking:", weigths[tuple(min_ctop[:2])])
+
+    # CHECKPOINT # 
+    if plot:
+        plot_optimal_solution(S, T, min_ctop_d, ground_path, ground_obs, aerial_obs)
+
+    return path_length(ground_path), min_ctop_d[min_ctop]["length"], tt, visibility
+
+
+
 def build_path_to_goal(point, previous):
     path = [point]
     while previous[path[-1]] != None:
@@ -90,22 +129,33 @@ def path_length(path):
 
 def example():
     
-    path = "scenarios/S1.pkl"
+    path = "scenarios/S2.pkl"
 
     with open(path, "rb") as f:
         s = pkl.loads(f.read())
 
-    p=18
-    q=80
+    p=16
+    q=30
     
     k_length=20
     k_collision=50
-    path_planning_smpp(
+    # path_planning_smpp(
+    #     s["S"], 
+    #     s["T"], 
+    #     s["ground_obstacles"],
+    #     s["aerial_obstacles"], 
+    #     p, q, k_length, k_collision, True)
+
+    
+    path_planning_bf(
         s["S"], 
         s["T"], 
         s["ground_obstacles"],
         s["aerial_obstacles"], 
         p, q, k_length, k_collision, True)
+
+
+
 
 
 def run_random_experiments(n, init=0):
@@ -162,9 +212,9 @@ def run_random_experiments(n, init=0):
 
 if __name__ == "__main__":
     
-    # example()
+    example()
 
     # run_random_experiments(1000, init=57)
-    run_random_experiments(1000)
+    # run_random_experiments(1000)
 
     

@@ -1,7 +1,7 @@
 import math
 import numpy as np
 
-from cat import *
+from cat2 import *
 from drawing import *
 from tools import *
 from planners import *
@@ -24,6 +24,33 @@ def get_cvisible_tops(T, g_obs, a_obs, p, q, k_length, k_collision):
 
         if cvis_tops != None:
             tops3D.update(cvis_tops)        
+
+    return tops3D, tt
+
+
+def get_tops_bf(T, g_obs, a_obs, p, q, k_length, k_collision):
+    
+    T_proj = np.array([T[0], T[1], HTOP])
+    cradius = get_top_circ_radious(T)
+
+    vplanes, tt = get_vertical_planes(T, T_proj, cradius, p, g_obs, a_obs)
+
+    tops3D = {}
+    for vp in vplanes:
+        tops = get_take_off_points(cradius, vp, q)
+        
+        tops_cat = {}
+        for top in tops:
+            minL = euclidian_distance(top, T)
+            cat_points, length, t = get_min_catenary_rectangles(top, T, vp["ground_obstacles"]+vp["aerial_obstacles"], minL, TETHER_LENGTH, k_length)
+            tt += t
+            # CHECKPOINT #  plot_3Dtether(top, T, cat_points, obstacles)
+
+            if length > 0 and not math.isnan(cat_points[0][0]):
+                tops_cat[tuple(top)] = {"length": length, "tether": cat_points} 
+    
+            tops3D.update(tops_cat)
+
 
     return tops3D, tt
 
@@ -106,7 +133,8 @@ def get_cvisible_tops2D(vplane, tops, T, k_length, k_collision):
         vtop = vg.Point(top[c0], top[c1]) 
         if vtop in weights:
             minL = max(weights[vtop], euclidian_distance(top, T))
-            cat_points, length, t = get_min_catenary(top, T, obstacles, minL, TETHER_LENGTH, k_length, k_collision)
+            # cat_points, length, t = get_min_catenary(top, T, obstacles, minL, TETHER_LENGTH, k_length, k_collision)
+            cat_points, length, t = get_min_catenary_rectangles(top, T, obstacles, minL, TETHER_LENGTH, k_length)
             tt += t
             # CHECKPOINT #  plot_3Dtether(top, T, cat_points, obstacles)
 
