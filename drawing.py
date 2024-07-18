@@ -42,7 +42,7 @@ def plot3D(points, obstacles, path_to_output=None, tops=None, ground_paths=None)
     # 8 points defining the cube corners
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
-
+    
     for pts in obstacles:
 
         print(pts)
@@ -80,7 +80,10 @@ def plot3D(points, obstacles, path_to_output=None, tops=None, ground_paths=None)
             for i in range(len(gp)-1):
                 ax.plot([gp[i][0], gp[i+1][0]], [gp[i][1], gp[i+1][1]], [0,0], "-g", label="ground_path")
 
-    plt.legend()
+    # plt.legend()
+
+    fig.subplots_adjust(left=0, right=1, bottom=0, top=1)
+
 
     if path_to_output:
         plt.savefig(path_to_output)
@@ -234,6 +237,7 @@ def plot_dijkstra_graph(S, previous, obstacles):
 
 def plot_optimal_solution(S, T, min_ctop, ground_path, ground_obs, aerial_obs):
     
+    print("S", S, "T", T)
     plot3D([
         {
             "point":S, 

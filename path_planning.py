@@ -111,20 +111,23 @@ def example():
 def run_random_experiments(n, init=0):
     
     path = "scenarios/random_scenarios.pkl"
-    path_output = "scenarios/random_results_extended.pkl"
+    path_output = "scenarios/random_results_16-30.pkl"
 
     with open(path, "rb") as f:
         s = pkl.loads(f.read())
 
-    p = [4, 8, 16, 32]
-    q = [20, 40, 60, 80, 100]
+    p = [16]
+    q = [30]
 
-    k_length= 52 
+    exps=[2]
+
+    k_length= 26
     k_collision = 50
 
     results = []
     
-    for i in range(init, n):
+    # for i in range(init, n):
+    for i in exps:
         si = s[i]
         r = {}
         visibility = None
@@ -138,7 +141,7 @@ def run_random_experiments(n, init=0):
                     tuple(S), tuple(T), 
                     si["ground_obstacles"],
                     si["aerial_obstacles"], 
-                    pi, qi, k_length, k_collision,plot=False,visibility=visibility)
+                    pi, qi, k_length, k_collision,plot=True,visibility=visibility)
 
 
                 print("visibility", i, len(list(visibility.keys())))
@@ -161,6 +164,7 @@ if __name__ == "__main__":
     
     # example()
 
-    run_random_experiments(1000, init=57)
+    # run_random_experiments(1000, init=57)
+    run_random_experiments(1000)
 
     

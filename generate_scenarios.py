@@ -239,9 +239,15 @@ def generate_S32(path):
 
 
     # walla1 = wallg1 + np.array([0,0,8*h])
-    walla2 = wallg2 + np.array([0,0,8*h])
+    walla2 = np.array([
+        [-10,wall_thick+EPSILON,8*h], [wall_thick,wall_thick+EPSILON,8*h],
+        [-10,70-2*EPSILON-wall_thick,8*h], [wall_thick,70-2*EPSILON-wall_thick,8*h], 
+        [-10,wall_thick+EPSILON,8*h+wall_thick], [wall_thick,wall_thick+EPSILON,8*h+wall_thick],
+        [-10,70-2*EPSILON-wall_thick,8*h+wall_thick], [wall_thick,70-2*EPSILON-wall_thick,8*h+wall_thick], 
+    ]) 
+    
     # walla3 = wallg3 + np.array([0,0,8*h])
-    walla4 = wallg4 + np.array([0,0,8*h])
+    walla4 = walla2 + np.array([80-wall_thick,0,0])
 
     squareg1 = np.array([
         [20,10,0], [50,10,0], [20,60,0], [50,60,0],
@@ -273,8 +279,8 @@ def generate_S32(path):
     aobs = [squarea1, balcony1, balcony2,  walla2,  walla4, walla5, walla6, walla7, walla8]
 
     S = (35,-50,0)
-    T1 = (5,30, 12*h)
-    T2 = (65,30, 12*h)
+    T1 = (6,30, 12*h)
+    T2 = (64,30, 12*h)
     
     scenario = {
         "S": S,
@@ -415,7 +421,7 @@ if __name__ == "__main__":
     
     # generate_S1("scenarios/S1.pkl")
     # generate_S2("scenarios/S2.pkl")
-    # generate_S32("scenarios/S3.pkl")
+    generate_S32("scenarios/S3.pkl")
 
     n = 1000
     ground_n = 10 
@@ -424,4 +430,4 @@ if __name__ == "__main__":
     board_size = (50,50,40)
     path = "scenarios/random_scenarios.pkl"
     
-    get_random_scenarios(n, ground_n, aerial_n, block_thick, board_size, path, plot=False)
+    # get_random_scenarios(n, ground_n, aerial_n, block_thick, board_size, path, plot=False)
