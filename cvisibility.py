@@ -7,7 +7,7 @@ from tools import *
 from planners import *
 
 
-def get_cvisible_tops(T, g_obs, a_obs, p, q, k_length, k_collision):
+def get_cvisible_tops(T, g_obs, a_obs, p, q, k_length):
     
     T_proj = np.array([T[0], T[1], HTOP])
     cradius = get_top_circ_radious(T)
@@ -19,7 +19,7 @@ def get_cvisible_tops(T, g_obs, a_obs, p, q, k_length, k_collision):
         tops = get_take_off_points(cradius, vp, q)
         # CHECKPOINT #  plot_vertical_plane(vp,T,tops) 
 
-        cvis_tops, ti = get_cvisible_tops2D(vp, tops, T, k_length, k_collision)
+        cvis_tops, ti = get_cvisible_tops2D(vp, tops, T, k_length)
         tt += ti
 
         if cvis_tops != None:
@@ -28,7 +28,7 @@ def get_cvisible_tops(T, g_obs, a_obs, p, q, k_length, k_collision):
     return tops3D, tt
 
 
-def get_tops_bf(T, g_obs, a_obs, p, q, k_length, k_collision):
+def get_tops_bf(T, g_obs, a_obs, p, q, k_length):
     
     T_proj = np.array([T[0], T[1], HTOP])
     cradius = get_top_circ_radious(T)
@@ -94,7 +94,7 @@ def get_take_off_points(cradius, vertical_plane, q):
     return [Q + step*i*v for i in range(q)]
         
 
-def get_cvisible_tops2D(vplane, tops, T, k_length, k_collision):
+def get_cvisible_tops2D(vplane, tops, T, k_length):
     
     c0, c1 = vplane["coords"]
     T_proj = (T[c0], T[c1])

@@ -1,4 +1,5 @@
 import math
+import matplotlib.pyplot as plt
 import numpy as np
 import pyvisgraph as vg
 import sys
@@ -195,6 +196,7 @@ def orientation(p, q, r):
         return 1
     else:
         return 2
+
 
 def on_segment(p, q, r):
     """Check if point q lies on segment pr."""

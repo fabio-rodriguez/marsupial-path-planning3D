@@ -6,7 +6,7 @@ from drawing import *
 from tools import *
 
 
-def path_planning_smpp(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, k_collision=10, plot=False, visibility=None):
+def path_planning_smpp(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, plot=False, visibility=None):
     """
         Planning algorithm based on Dijkstra apprach to reach B with the aerial vehicle starting from A with the ground vehicle
 
@@ -14,7 +14,7 @@ def path_planning_smpp(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, k_co
     """
     tt = 0
     t = time.time()
-    cvisible_tops, t_error = get_cvisible_tops(T, ground_obs, aerial_obs,  p, q, k_length, k_collision)
+    cvisible_tops, t_error = get_cvisible_tops(T, ground_obs, aerial_obs,  p, q, k_length)
     tt += time.time()-t-t_error
     print("cvisible_tops", tt, "t error", t_error)
 
@@ -75,7 +75,7 @@ def path_planning_smpp(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, k_co
     
 
 
-def path_planning_bf(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, k_collision=10, plot=False, visibility=None):
+def path_planning_bf(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, plot=False, visibility=None):
     """
         Planning algorithm based on Dijkstra apprach to reach B with the aerial vehicle starting from A with the ground vehicle
 
@@ -83,7 +83,7 @@ def path_planning_bf(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, k_coll
     """
     tt = 0
     t = time.time()
-    tops, t_error = get_tops_bf(T, ground_obs, aerial_obs,  p, q, k_length, k_collision)
+    tops, t_error = get_tops_bf(T, ground_obs, aerial_obs,  p, q, k_length)
     tt += time.time()-t-t_error
     print("cvisible_tops", tt, "t error", t_error)
 
@@ -137,14 +137,13 @@ def example():
     p=16
     q=30
     
-    k_length=20
-    k_collision=50
+    k_length=26
     # path_planning_smpp(
     #     s["S"], 
     #     s["T"], 
     #     s["ground_obstacles"],
     #     s["aerial_obstacles"], 
-    #     p, q, k_length, k_collision, True)
+    #     p, q, k_length, True)
 
     
     path_planning_bf(
@@ -152,7 +151,7 @@ def example():
         s["T"], 
         s["ground_obstacles"],
         s["aerial_obstacles"], 
-        p, q, k_length, k_collision, True)
+        p, q, k_length, True)
 
 
 
@@ -172,7 +171,6 @@ def run_random_experiments(n, init=0):
     exps=[2]
 
     k_length= 26
-    k_collision = 50
 
     results = []
     
@@ -191,7 +189,7 @@ def run_random_experiments(n, init=0):
                     tuple(S), tuple(T), 
                     si["ground_obstacles"],
                     si["aerial_obstacles"], 
-                    pi, qi, k_length, k_collision,plot=True,visibility=visibility)
+                    pi, qi, k_length,plot=True,visibility=visibility)
 
 
                 print("visibility", i, len(list(visibility.keys())))
