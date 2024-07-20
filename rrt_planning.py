@@ -39,6 +39,7 @@ class Graph:
         self.sy = endpos[1] - startpos[1]
 
         self.opt_cat = []
+        self.opt_length = None
 
     def get_id(self, node):
         return self.vex2idx[tuple(node)]
@@ -64,14 +65,15 @@ class Graph:
         while True:
             random_point = np.random.rand(2)-0.5
             random_point[0] *= 2*deltaX 
-            random_point[1] *= deltaY
+            random_point[1] *= 2*deltaY
         
             distances = []
             new_edges = []
             for node in self.vertices:
                 d = euclidian_distance(node, random_point)
                 if d <= radius:  
-                    distances.append(d)
+                    idx = self.get_id(node)
+                    distances.append(d+self.distances[idx])
                     new_edges.append((node, random_point))
 
             items = sorted(zip(distances, new_edges))            
@@ -122,6 +124,7 @@ def RRT_star(startpos, T, ground_obs, aerial_obs, radius, k_length, n_iter=2*10*
                 if len(G.opt_cat) == 0 or G.distances[newidx]+length < G.distances[endidx]:
                     G.distances[endidx] = G.distances[newidx]+length
                     G.opt_cat = cat
+                    G.opt_length = length
 
         # dist = euclidian_distance(newvex, G.endpos)
         # if dist < 2 * radius:
@@ -143,7 +146,9 @@ def dijkstra(G, endnode, g_obs, a_obs):
     Dijkstra algorithm for finding shortest path from start position to end.
     '''
     srcIdx = G.vex2idx[tuple(G.startpos)]
-    dist, endnode, dstIdx = get_dest_node(G, endnode, g_obs, a_obs)
+    endnode = G.endpos
+    endidx = G.vex2idx[tuple(endnode)]
+    dist = G.distances[endidx]
 
     # build dijkstra
     nodes = list(G.neighbors.keys())
@@ -165,31 +170,12 @@ def dijkstra(G, endnode, g_obs, a_obs):
 
     # retrieve path
     path = deque()
-    curNode = dstIdx
+    curNode = endidx
     while prev[curNode] is not None:
         path.appendleft(G.vertices[curNode])
         curNode = prev[curNode]
     path.appendleft(G.vertices[curNode])
-    return list(path)
-
-
-def get_dest_node(G, endpoint, ground_obs, aerial_obs, k_length=26):
-    ids = []
-    distances = []
-    end_nodes = []
-
-    for v in G.vertices:
-        dp_function = lambda x: get_min_catenary_rectangles(np.array(x), endpoint, ground_obs + aerial_obs, euclidian_distance_lists(x, endpoint), TETHER_LENGTH, k_length)   
-        _, length, _ = dp_function(list(v)+[0])
-        if length > 0:
-            id = G.vex2idx[tuple(v)]
-            ids.append(id)
-            end_nodes.append(tuple(v))
-            distances.append(G.distances[id])
-
-    distances, end_nodes, ids = zip(*sorted(zip(distances, end_nodes, ids)))
-
-    return distances[0], end_nodes[0], ids[0]
+    return list(path)[:-1]
 
 
 def plot(G, obstacles, radius, path=None):
@@ -247,19 +233,36 @@ if __name__ == '__main__':
     T = scenario["T"]
     a_obs, g_obs = scenario["aerial_obstacles"], scenario["ground_obstacles"] 
     v_graph = scenario["ground_vis_graph"]
-    radius = 10 # RRT parameter
+    radius = 5 # RRT parameter
     k_length = 26
 
     tt = time.time()
-    G = RRT_star(S[:2], T, g_obs, a_obs, radius, k_length)
+    G = RRT_star(S[:2], T, g_obs, a_obs, radius, k_length, n_iter=10**4, time_for_ending=100)
     print("time for graph", tt-time.time())
 
     if G.success:
-        path = dijkstra(G, T, g_obs, a_obs)
-        print(path)
-        plot(G, g_obs, radius, path)
+        ground_path = dijkstra(G, T, g_obs, a_obs)
+        plot(G, g_obs, radius, ground_path)
+
+        optX, length, cat = ground_path[-1], G.opt_cat, G.opt_length
+        topX = tuple([*optX[:2], MARSUPIAL_HEIGHT-UAV_RADIUS]) 
+        opt_ctop = {topX: {"length":length, "tether":cat}}
+        rrt_sol = {
+            "S": S,
+            "T": T,
+            "scenario": "S1",
+            "ground_path": ground_path,
+            "opt_ctop": opt_ctop
+        }
+
+        with open("scenarios/S1_rrt.pkl", "wb") as f:
+            f.write(pkl.dumps(rrt_sol))
+
     else:
+        print("Not SUCCEDED")
         plot(G, g_obs, radius)
+
+
 
 
                 

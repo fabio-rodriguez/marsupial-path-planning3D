@@ -71,6 +71,19 @@ def path_planning_smpp(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, plot
     if plot:
         plot_optimal_solution(S, T, min_ctop_d, ground_path, ground_obs, aerial_obs)
 
+    
+    maspa_sol = {
+        "S": S,
+        "T": T,
+        "scenario": "S1",
+        "ground_path": ground_path,
+        "opt_ctop": min_ctop_d
+    }
+
+    with open("scenarios/S1_maspa.pkl", "wb") as f:
+        f.write(pkl.dumps(maspa_sol))
+
+
     return path_length(ground_path), min_ctop_d[min_ctop]["length"], tt, visibility
     
 
@@ -109,6 +122,17 @@ def path_planning_bf(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, plot=F
     if plot:
         plot_optimal_solution(S, T, min_ctop_d, ground_path, ground_obs, aerial_obs)
 
+    maspabf_sol = {
+        "S": S,
+        "T": T,
+        "scenario": "S1",
+        "ground_path": ground_path,
+        "opt_ctop": min_ctop_d
+    }
+
+    with open("scenarios/S1_maspabf.pkl", "wb") as f:
+        f.write(pkl.dumps(maspabf_sol))
+
     return path_length(ground_path), min_ctop_d[min_ctop]["length"], tt, visibility
 
 
@@ -138,20 +162,20 @@ def example():
     q=30
     
     k_length=26
-    # path_planning_smpp(
-    #     s["S"], 
-    #     s["T"], 
-    #     s["ground_obstacles"],
-    #     s["aerial_obstacles"], 
-    #     p, q, k_length, True)
-
-    
-    path_planning_bf(
+    path_planning_smpp(
         s["S"], 
         s["T"], 
         s["ground_obstacles"],
         s["aerial_obstacles"], 
         p, q, k_length, True)
+
+    
+    # path_planning_bf(
+    #     s["S"], 
+    #     s["T"], 
+    #     s["ground_obstacles"],
+    #     s["aerial_obstacles"], 
+    #     p, q, k_length, True)
 
 
 

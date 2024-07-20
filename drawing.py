@@ -44,10 +44,6 @@ def plot3D(points, obstacles, path_to_output=None, tops=None, ground_paths=None)
     ax = fig.add_subplot(111, projection="3d")
     
     for pts in obstacles:
-
-        print(pts)
-        print(len(pts), pts.shape)
-        print()
         
         hull = ConvexHull(pts)
 
@@ -237,7 +233,6 @@ def plot_dijkstra_graph(S, previous, obstacles):
 
 def plot_optimal_solution(S, T, min_ctop, ground_path, ground_obs, aerial_obs):
     
-    print("S", S, "T", T)
     plot3D([
         {
             "point":S, 
