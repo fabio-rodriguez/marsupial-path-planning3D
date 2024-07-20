@@ -72,21 +72,20 @@ def path_planning_smpp(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, plot
         plot_optimal_solution(S, T, min_ctop_d, ground_path, ground_obs, aerial_obs)
 
     
-    maspa_sol = {
-        "S": S,
-        "T": T,
-        "scenario": "S1",
-        "ground_path": ground_path,
-        "opt_ctop": min_ctop_d
-    }
+    # maspa_sol = {
+    #     "S": S,
+    #     "T": T,
+    #     "scenario": "S1",
+    #     "ground_path": ground_path,
+    #     "opt_ctop": min_ctop_d
+    # }
 
-    with open("scenarios/S1_maspa.pkl", "wb") as f:
-        f.write(pkl.dumps(maspa_sol))
+    # with open("scenarios/S1_maspa.pkl", "wb") as f:
+    #     f.write(pkl.dumps(maspa_sol))
 
 
-    return path_length(ground_path), min_ctop_d[min_ctop]["length"], tt, visibility
+    return ground_path, (min_ctop, min_ctop_d[min_ctop]["length"]), tt, visibility
     
-
 
 def path_planning_bf(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, plot=False, visibility=None):
     """
@@ -134,6 +133,46 @@ def path_planning_bf(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, plot=F
         f.write(pkl.dumps(maspabf_sol))
 
     return path_length(ground_path), min_ctop_d[min_ctop]["length"], tt, visibility
+
+
+
+def maspa_sequential(plot=False, visibility=None):
+    """
+        MASPA for sequential targets
+    """
+
+    path = "scenarios/S3.pkl"
+
+    with open(path, "rb") as f:
+        s = pkl.loads(f.read())
+
+    S = s["S"] 
+    Ts = s["T"]   
+    ground_obs = s["ground_obstacles"]
+    aerial_obs = s["aerial_obstacles"]
+    p=16
+    q=30
+    k_length=26
+    
+
+    tt = 0
+    gpaths = []
+    opt_tops = []
+    total_length = 0
+    for i, T in enumerate(Ts):
+        ground_path, opt_info, t, visibility = path_planning_smpp(S, T, ground_obs, aerial_obs, p=p, q=q, k_length=k_length, plot=plot, visibility=visibility)
+        
+        tt += t
+        gpaths.append(ground_path)
+        optX, length = opt_info
+        opt_tops.append(optX)
+        S = tuple([*optX[:2], 0])
+        total_length += path_length(ground_path) + length
+        if i < len(T)-1:
+            total_length += length
+
+    print(total_length, tt)
+
 
 
 
@@ -234,9 +273,12 @@ def run_random_experiments(n, init=0):
 
 if __name__ == "__main__":
     
-    example()
+    # example()
 
+    maspa_sequential(plot=True)
     # run_random_experiments(1000, init=57)
     # run_random_experiments(1000)
+
+
 
     
