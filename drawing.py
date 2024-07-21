@@ -289,7 +289,49 @@ def plot_S1():
 
 
 def plot_S2():
-    pass
+    
+    path = "scenarios/S3.pkl"
+    with open(path, "rb") as f:
+        scenario = pkl.loads(f.read())
+
+    gobs = scenario["ground_obstacles"]
+    aobs = scenario["aerial_obstacles"] 
+        
+    with open("scenarios/S3_maspa.pkl", "rb") as f:
+        maspa_sol = pkl.loads(f.read())
+    
+    S = maspa_sol["S"]
+    T = maspa_sol["Ts"][0]
+    ground_path = maspa_sol["gpaths"][0]
+    opt_ctop = maspa_sol["opt_tops"][0]
+    
+    figax = plot_optimal_solution(S, T, opt_ctop, ground_path, gobs, aobs, marker="-", show=False)
+
+    S = ground_path[-1]
+    T = maspa_sol["Ts"][1]
+    ground_path = maspa_sol["gpaths"][1]
+    opt_ctop = maspa_sol["opt_tops"][1]
+    
+    figax = plot_optimal_solution(S, T, opt_ctop, ground_path, gobs, aobs, marker="-", show=False, figax=figax)
+
+    with open("scenarios/S3_rrt.pkl", "rb") as f:
+        rrt_sol = pkl.loads(f.read())
+    
+    S = rrt_sol["S"]
+    T = rrt_sol["Ts"][0]
+    ground_path = rrt_sol["gpaths"][0]
+    opt_ctop = rrt_sol["opt_tops"][0]
+    
+    figax = plot_optimal_solution(S, T, opt_ctop, ground_path, gobs, aobs, marker="--", show=False, figax=figax)
+
+    S = [*ground_path[-1], 0]
+    T = rrt_sol["Ts"][1]
+    ground_path = rrt_sol["gpaths"][1]
+    opt_ctop = rrt_sol["opt_tops"][1]
+    
+    plot_optimal_solution(S, T, opt_ctop, ground_path, gobs, aobs, marker="--", show=True, figax=figax)
+
+
 
 
 if __name__ == "__main__":

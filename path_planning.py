@@ -84,7 +84,7 @@ def path_planning_smpp(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, plot
     #     f.write(pkl.dumps(maspa_sol))
 
 
-    return ground_path, (min_ctop, min_ctop_d[min_ctop]["length"]), tt, visibility
+    return ground_path, (min_ctop, min_ctop_d, min_ctop_d[min_ctop]["length"]), tt, visibility
     
 
 def path_planning_bf(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, plot=False, visibility=None):
@@ -135,7 +135,6 @@ def path_planning_bf(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, plot=F
     return path_length(ground_path), min_ctop_d[min_ctop]["length"], tt, visibility
 
 
-
 def maspa_sequential(plot=False, visibility=None):
     """
         MASPA for sequential targets
@@ -163,8 +162,8 @@ def maspa_sequential(plot=False, visibility=None):
         
         tt += t
         gpaths.append(ground_path)
-        optX, length = opt_info
-        opt_tops.append(optX)
+        optX, opt_info, length = opt_info
+        opt_tops.append(opt_info)
         S = tuple([*optX[:2], 0])
         total_length += path_length(ground_path) + length
         if i < len(T)-1:
