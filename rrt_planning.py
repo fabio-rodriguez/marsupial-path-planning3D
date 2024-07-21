@@ -87,10 +87,12 @@ class Graph:
                     return d, newidx, parentidx
                 
 
-def RRT_star(startpos, T, ground_obs, aerial_obs, radius, k_length, n_iter=2*10**3, time_for_ending=200):
+def RRT_star(startpos, T, ground_obs, aerial_obs, radius, k_length, n_iter=2*10**3, time_for_ending=200, G=None):
     ''' RRT star algorithm '''
     endpos = T[:2]
-    G = Graph(startpos, endpos)
+
+    if G == None:
+        G = Graph(startpos, endpos)
 
     gobs_4planning = [[v[:2] for v in oi if v[-1]==0] for oi in ground_obs]
 
@@ -141,7 +143,7 @@ def RRT_star(startpos, T, ground_obs, aerial_obs, radius, k_length, n_iter=2*10*
     return G
 
 
-def dijkstra(G, endnode, g_obs, a_obs):
+def dijkstra(G, endnode):
     '''
     Dijkstra algorithm for finding shortest path from start position to end.
     '''
@@ -175,10 +177,11 @@ def dijkstra(G, endnode, g_obs, a_obs):
         path.appendleft(G.vertices[curNode])
         curNode = prev[curNode]
     path.appendleft(G.vertices[curNode])
-    return list(path)[:-1]
+    length = G.distances[prev[endidx]]
+    return list(path)[:-1], length
 
 
-def plot(G, obstacles, radius, path=None):
+def plot(G, obstacles, path=None):
     '''
     Plot RRT, obstacles and shortest path
     '''
@@ -223,16 +226,75 @@ def pathSearch(startpos, endpos, obstacles, n_iter, radius, stepSize):
         return path
 
 
-if __name__ == '__main__':
+def rrt_sequential(plotting=False):
+    
+    """
+        MASPA for sequential targets
+    """
+
+    path = "scenarios/S3.pkl"
+
+    with open(path, "rb") as f:
+        s = pkl.loads(f.read())
+
+    S = s["S"] 
+    Ts = s["T"]   
+    ground_obs = s["ground_obstacles"]
+    aerial_obs = s["aerial_obstacles"]
+    k_length=26
+    radius = 10
+    
+    tt = 0
+    gpaths = []
+    opt_tops = []
+    total_length = 0
+    for i, T in enumerate(Ts):
+        
+        t = time.time()
+        G = RRT_star(S[:2],T,ground_obs,aerial_obs, radius, k_length, n_iter=10**4, time_for_ending=20)
+        tt += time.time() - t
+
+        ground_path, gpath_length = dijkstra(G, T)
+        if plotting:
+            plot(G, ground_obs, ground_path)
+
+        total_length += gpath_length
+        gpaths.append(ground_path)
+        optX, apath_length, cat = ground_path[-1], G.opt_cat, G.opt_length
+        topX = tuple([*optX[:2], MARSUPIAL_HEIGHT-UAV_RADIUS]) 
+        opt_ctop = {topX: {"length":apath_length, "tether":cat}}
+        opt_tops.append(opt_ctop)
+        
+        S = tuple([*optX[:2], 0])
+        if i < len(T)-1:
+            total_length += apath_length
+
+    print(total_length, tt)
+
+    d = {
+        "total_length": total_length,
+        "total_time": tt,
+        "scenario": "S3",
+        "S": S,
+        "Ts": Ts,
+        "ground_obs": ground_obs,
+        "aerial_obs": aerial_obs,
+        "gpaths": gpaths,
+        "opt_tops": opt_tops
+    }
+
+    with open("scenarios/S3_rrt.pkl", "wb") as f:
+        f.write(pkl.dumps(d))
 
 
+def example():
+    
     with open("scenarios/S2.pkl", "rb") as f:
         scenario = pkl.load(f)
 
     S = scenario["S"]
     T = scenario["T"]
     a_obs, g_obs = scenario["aerial_obstacles"], scenario["ground_obstacles"] 
-    v_graph = scenario["ground_vis_graph"]
     radius = 5 # RRT parameter
     k_length = 26
 
@@ -241,8 +303,8 @@ if __name__ == '__main__':
     print("time for graph", tt-time.time())
 
     if G.success:
-        ground_path = dijkstra(G, T, g_obs, a_obs)
-        plot(G, g_obs, radius, ground_path)
+        ground_path = dijkstra(G, T)
+        plot(G, g_obs, ground_path)
 
         optX, length, cat = ground_path[-1], G.opt_cat, G.opt_length
         topX = tuple([*optX[:2], MARSUPIAL_HEIGHT-UAV_RADIUS]) 
@@ -264,7 +326,11 @@ if __name__ == '__main__':
 
 
 
+if __name__ == '__main__':
 
+    # example()
+
+    rrt_sequential(plotting=False)
                 
             
             

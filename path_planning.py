@@ -43,7 +43,7 @@ def path_planning_smpp(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, plot
     t = time.time()
     Xopt, weigths, previous, t_error, visibility = upd_dijkstra_algorithm(S, ground_points, ground_obs_vertices, ground_obs_proj, visibility)
     tt += time.time()-t-t_error
-    print("upd_dijkstra_algorithm", tt, "t error", t_error)
+    # print("upd_dijkstra_algorithm", tt, "t error", t_error)
 
     # CHECKPOINT # plot_dijkstra_graph(S, previous, ground_obs_proj)
     if Xopt == None:
@@ -63,9 +63,9 @@ def path_planning_smpp(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, plot
         min_ctop_d = {min_ctop: ground_points[Xopt]}
 
     ground_path = build_path_to_goal(tuple(min_ctop[:2]), previous)
-    print("total time:", tt)
-    print("gpath", path_length(ground_path), "apath", min_ctop_d[min_ctop]["length"])
-    print("paths sum", path_length(ground_path) + min_ctop_d[min_ctop]["length"], "checking:", weigths[tuple(min_ctop[:2])])
+    # print("total time:", tt)
+    # print("gpath", path_length(ground_path), "apath", min_ctop_d[min_ctop]["length"])
+    # print("paths sum", path_length(ground_path) + min_ctop_d[min_ctop]["length"], "checking:", weigths[tuple(min_ctop[:2])])
 
     # CHECKPOINT # 
     if plot:
@@ -154,7 +154,6 @@ def maspa_sequential(plot=False, visibility=None):
     q=30
     k_length=26
     
-
     tt = 0
     gpaths = []
     opt_tops = []
@@ -173,7 +172,20 @@ def maspa_sequential(plot=False, visibility=None):
 
     print(total_length, tt)
 
+    d = {
+        "total_length": total_length,
+        "total_time": tt,
+        "scenario": "S3",
+        "S": S,
+        "Ts": Ts,
+        "ground_obs": ground_obs,
+        "aerial_obs": aerial_obs,
+        "gpaths": gpaths,
+        "opt_tops": opt_tops
+    }
 
+    with open("scenarios/S3_maspa.pkl", "wb") as f:
+        f.write(pkl.dumps(d))
 
 
 def build_path_to_goal(point, previous):
@@ -275,7 +287,7 @@ if __name__ == "__main__":
     
     # example()
 
-    maspa_sequential(plot=True)
+    maspa_sequential(plot=False)
     # run_random_experiments(1000, init=57)
     # run_random_experiments(1000)
 
