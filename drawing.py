@@ -1,6 +1,7 @@
 import math
 import matplotlib.pyplot as plt
 import numpy as np
+import pickle as pkl
 import pyvisgraph as vg
 
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection   
@@ -37,11 +38,14 @@ def plot_scenario_multitarget(scenario, path=None):
         scenario["ground_obstacles"]+scenario["aerial_obstacles"], path_to_output=path)
 
 
-def plot3D(points, obstacles, path_to_output=None, tops=None, ground_paths=None):
+def plot3D(points, obstacles, path_to_output=None, tops=None, ground_paths=None, show=None, marker=None, figax=None):
 
     # 8 points defining the cube corners
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection="3d")
+    if not figax:
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection="3d")
+    else:
+        fig, ax = figax
     
     for pts in obstacles:
         
@@ -55,7 +59,7 @@ def plot3D(points, obstacles, path_to_output=None, tops=None, ground_paths=None)
             s = np.append(s, s[0])  # Here we cycle back to the first coordinate
             # ax.plot(pts[s, 0], pts[s, 1], pts[s, 2], "r-")
             verts = [list(zip(pts[s, 0],pts[s, 1],pts[s, 2]))]
-            ax.add_collection3d(Poly3DCollection(verts, alpha=0.3))
+            ax.add_collection3d(Poly3DCollection(verts, alpha=0.1))
 
         # Make axis label
         for i in ["x", "y", "z"]:
@@ -67,14 +71,14 @@ def plot3D(points, obstacles, path_to_output=None, tops=None, ground_paths=None)
 
     if tops:
         for top, values in tops.items():
-            ax.plot([top[0]], [top[1]], [top[2]], "og", label="top")
+            ax.plot([top[0]], [top[1]], [0], "og", label="top")
             tether = values["tether"]
-            ax.plot(tether[:,0], tether[:,1], tether[:,2], "-r", label="aerial path")
+            ax.plot(tether[:,0], tether[:,1], tether[:,2], marker+"r", label="aerial path")
 
     if ground_paths:
         for gp in ground_paths:
             for i in range(len(gp)-1):
-                ax.plot([gp[i][0], gp[i+1][0]], [gp[i][1], gp[i+1][1]], [0,0], "-g", label="ground_path")
+                ax.plot([gp[i][0], gp[i+1][0]], [gp[i][1], gp[i+1][1]], [0,0], marker+"g", label="ground_path")
 
     # plt.legend()
 
@@ -84,7 +88,10 @@ def plot3D(points, obstacles, path_to_output=None, tops=None, ground_paths=None)
     if path_to_output:
         plt.savefig(path_to_output)
 
-    plt.show()
+    if show:
+        plt.show()
+
+    return (fig, ax)
 
 
 def plot_vertical_plane(plane, T, tops):
@@ -231,9 +238,9 @@ def plot_dijkstra_graph(S, previous, obstacles):
     plt.show()
 
 
-def plot_optimal_solution(S, T, min_ctop, ground_path, ground_obs, aerial_obs):
+def plot_optimal_solution(S, T, min_ctop, ground_path, ground_obs, aerial_obs, show=True, marker="-", figax=None):
     
-    plot3D([
+    return plot3D([
         {
             "point":S, 
             "label":"S", "color":"k"
@@ -244,4 +251,49 @@ def plot_optimal_solution(S, T, min_ctop, ground_path, ground_obs, aerial_obs):
         }], 
         ground_obs + aerial_obs, 
         tops=min_ctop,
-        ground_paths=[ground_path])
+        ground_paths=[ground_path],
+        show=show, 
+        marker=marker,
+        figax = figax)
+
+
+def plot_S1():
+
+    path = "scenarios/S2.pkl"
+    with open(path, "rb") as f:
+        scenario = pkl.loads(f.read())
+
+    gobs = scenario["ground_obstacles"]
+    aobs = scenario["aerial_obstacles"] 
+        
+    with open("scenarios/S1_maspa.pkl", "rb") as f:
+        maspa_sol = pkl.loads(f.read())
+    
+    S = maspa_sol["S"]
+    T = maspa_sol["T"]
+    ground_path = maspa_sol["ground_path"]
+    opt_ctop = maspa_sol["opt_ctop"]
+    
+    figax = plot_optimal_solution(S, T, opt_ctop, ground_path, gobs, aobs, show=False)
+
+    with open("scenarios/S1_rrt.pkl", "rb") as f:
+        maspa_sol = pkl.loads(f.read())
+    
+    S = maspa_sol["S"]
+    T = maspa_sol["T"]
+    ground_path = maspa_sol["ground_path"]
+    opt_ctop = maspa_sol["opt_ctop"]
+    
+    print(opt_ctop)
+    plot_optimal_solution(S, T, opt_ctop, ground_path, gobs, aobs, marker="--", figax=figax)
+
+
+def plot_S2():
+    pass
+
+
+if __name__ == "__main__":
+    
+    # plot_S1()
+
+    plot_S2()

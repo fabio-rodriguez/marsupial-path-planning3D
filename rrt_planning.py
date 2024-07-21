@@ -84,7 +84,7 @@ class Graph:
                     parentidx = self.get_id(node_parent)
                     newidx = self.add_vex(new_node)
 
-                    return d, newidx, parentidx
+                    return euclidian_distance(new_node, node_parent), newidx, parentidx
                 
 
 def RRT_star(startpos, T, ground_obs, aerial_obs, radius, k_length, n_iter=2*10**3, time_for_ending=200, G=None):
@@ -255,19 +255,25 @@ def rrt_sequential(plotting=False):
         tt += time.time() - t
 
         ground_path, gpath_length = dijkstra(G, T)
+        print("gpath_length", gpath_length)
         if plotting:
             plot(G, ground_obs, ground_path)
 
         total_length += gpath_length
         gpaths.append(ground_path)
-        optX, apath_length, cat = ground_path[-1], G.opt_cat, G.opt_length
+        optX, cat, apath_length = ground_path[-1], G.opt_cat, G.opt_length
         topX = tuple([*optX[:2], MARSUPIAL_HEIGHT-UAV_RADIUS]) 
         opt_ctop = {topX: {"length":apath_length, "tether":cat}}
         opt_tops.append(opt_ctop)
         
         S = tuple([*optX[:2], 0])
+        total_length += apath_length
+        print("apath_length", apath_length)
+
         if i < len(T)-1:
             total_length += apath_length
+            print("comeback apath_length", apath_length)
+
 
     print(total_length, tt)
 
@@ -288,6 +294,10 @@ def rrt_sequential(plotting=False):
 
 
 def example():
+
+    # # Best path resutls:
+    # time for graph 20.010276794433594
+    # total_path length 83.3471842895182
     
     with open("scenarios/S2.pkl", "rb") as f:
         scenario = pkl.load(f)
@@ -295,20 +305,20 @@ def example():
     S = scenario["S"]
     T = scenario["T"]
     a_obs, g_obs = scenario["aerial_obstacles"], scenario["ground_obstacles"] 
-    radius = 5 # RRT parameter
+    radius = 10 # RRT parameter
     k_length = 26
 
     tt = time.time()
-    G = RRT_star(S[:2], T, g_obs, a_obs, radius, k_length, n_iter=10**4, time_for_ending=100)
-    print("time for graph", tt-time.time())
+    G = RRT_star(S[:2], T, g_obs, a_obs, radius, k_length, n_iter=10**4, time_for_ending=20)
+    print("time for graph", time.time()-tt)
 
     if G.success:
-        ground_path = dijkstra(G, T)
+        ground_path, gpath_length = dijkstra(G, T)
         plot(G, g_obs, ground_path)
 
-        optX, length, cat = ground_path[-1], G.opt_cat, G.opt_length
+        optX, cat, apath_length = ground_path[-1], G.opt_cat, G.opt_length
         topX = tuple([*optX[:2], MARSUPIAL_HEIGHT-UAV_RADIUS]) 
-        opt_ctop = {topX: {"length":length, "tether":cat}}
+        opt_ctop = {topX: {"length":apath_length, "tether":cat}}
         rrt_sol = {
             "S": S,
             "T": T,
@@ -319,6 +329,8 @@ def example():
 
         with open("scenarios/S1_rrt.pkl", "wb") as f:
             f.write(pkl.dumps(rrt_sol))
+
+        print("total_path length", gpath_length + apath_length)
 
     else:
         print("Not SUCCEDED")
