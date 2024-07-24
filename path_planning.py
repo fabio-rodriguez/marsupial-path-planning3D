@@ -16,7 +16,7 @@ def path_planning_smpp(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, plot
     t = time.time()
     cvisible_tops, t_error = get_cvisible_tops(T, ground_obs, aerial_obs,  p, q, k_length)
     tt += time.time()-t-t_error
-    print("cvisible_tops", tt, "t error", t_error)
+    # print("cvisible_tops", tt, "t error", t_error)
 
     # CHECKPOINT # plot3D([{"point":S, "label":"S", "color":"k"}, {"point":T, "label":"T", "color":"r"}], ground_obs + aerial_obs, tops = cvisible_tops)
 
@@ -69,19 +69,21 @@ def path_planning_smpp(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, plot
 
     # CHECKPOINT # 
     if plot:
+        S = (49, 53, 0)
+        ground_path[-1] = S
         plot_optimal_solution(S, T, min_ctop_d, ground_path, ground_obs, aerial_obs)
 
     
-    # maspa_sol = {
-    #     "S": S,
-    #     "T": T,
-    #     "scenario": "S1",
-    #     "ground_path": ground_path,
-    #     "opt_ctop": min_ctop_d
-    # }
+    maspa_sol = {
+        "S": S,
+        "T": T,
+        "scenario": "S1",
+        "ground_path": ground_path,
+        "opt_ctop": min_ctop_d
+    }
 
-    # with open("scenarios/S1_maspa.pkl", "wb") as f:
-    #     f.write(pkl.dumps(maspa_sol))
+    with open("scenarios/S1_maspa.pkl", "wb") as f:
+        f.write(pkl.dumps(maspa_sol))
 
 
     return ground_path, (min_ctop, min_ctop_d, min_ctop_d[min_ctop]["length"]), tt, visibility
@@ -97,14 +99,14 @@ def path_planning_bf(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, plot=F
     t = time.time()
     tops, t_error = get_tops_bf(T, ground_obs, aerial_obs,  p, q, k_length)
     tt += time.time()-t-t_error
-    print("cvisible_tops", tt, "t error", t_error)
+    # print("cvisible_tops", tt, "t error", t_error)
 
     ground_obs_proj, ground_obs_vertices = get_obstacles_proj_vertices(ground_obs)
     ground_points = {k[:2]:v for k,v in tops.items()}
     t = time.time()
     Xopt, weigths, previous, t_error, visibility = upd_dijkstra_algorithm(S, ground_points, ground_obs_vertices, ground_obs_proj, visibility)
     tt += time.time()-t-t_error
-    print("upd_dijkstra_algorithm", tt, "t error", t_error)
+    # print("upd_dijkstra_algorithm", tt, "t error", t_error)
 
     if Xopt == None:
         return None, None, None, visibility
@@ -113,9 +115,9 @@ def path_planning_bf(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, plot=F
         min_ctop_d = {min_ctop: ground_points[Xopt]}
 
     ground_path = build_path_to_goal(tuple(min_ctop[:2]), previous)
-    print("total time:", tt)
-    print("gpath", path_length(ground_path), "apath", min_ctop_d[min_ctop]["length"])
-    print("paths sum", path_length(ground_path) + min_ctop_d[min_ctop]["length"], "checking:", weigths[tuple(min_ctop[:2])])
+    # print("total time:", tt)
+    # print("gpath", path_length(ground_path), "apath", min_ctop_d[min_ctop]["length"])
+    # print("paths sum", path_length(ground_path) + min_ctop_d[min_ctop]["length"], "checking:", weigths[tuple(min_ctop[:2])])
 
     # CHECKPOINT # 
     if plot:
@@ -132,7 +134,7 @@ def path_planning_bf(S, T, ground_obs, aerial_obs, p=5, q=5, k_length=10, plot=F
     with open("scenarios/S1_maspabf.pkl", "wb") as f:
         f.write(pkl.dumps(maspabf_sol))
 
-    return path_length(ground_path), min_ctop_d[min_ctop]["length"], tt, visibility
+    return ground_path, (min_ctop, min_ctop_d, min_ctop_d[min_ctop]["length"]), tt, visibility
 
 
 def maspa_sequential(plot=False, visibility=None):
@@ -158,11 +160,13 @@ def maspa_sequential(plot=False, visibility=None):
     opt_tops = []
     total_length = 0
     for i, T in enumerate(Ts):
-        ground_path, opt_info, t, visibility = path_planning_smpp(S, T, ground_obs, aerial_obs, p=p, q=q, k_length=k_length, plot=plot, visibility=visibility)
+        # ground_path, opt_info, t, visibility = path_planning_smpp(S, T, ground_obs, aerial_obs, p=p, q=q, k_length=k_length, plot=plot, visibility=visibility)
+        ground_path, opt_info, t, visibility = path_planning_bf(S, T, ground_obs, aerial_obs, p=p, q=q, k_length=k_length, plot=plot, visibility=visibility)
         
         tt += t
         gpaths.append(ground_path)
         optX, opt_info, length = opt_info
+
         opt_tops.append(opt_info)
         S = tuple([*optX[:2], 0])
         total_length += path_length(ground_path) + length
@@ -226,9 +230,6 @@ def example():
     #     s["ground_obstacles"],
     #     s["aerial_obstacles"], 
     #     p, q, k_length, True)
-
-
-
 
 
 def run_random_experiments(n, init=0):

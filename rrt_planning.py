@@ -40,6 +40,7 @@ class Graph:
 
         self.opt_cat = []
         self.opt_length = None
+        self.opt_total_length = None
 
     def get_id(self, node):
         return self.vex2idx[tuple(node)]
@@ -99,7 +100,8 @@ def RRT_star(startpos, T, ground_obs, aerial_obs, radius, k_length, n_iter=2*10*
     feasible_dist = math.sqrt(TETHER_LENGTH**2 - (endpos[-1]-MARSUPIAL_HEIGHT)**2) 
     init_t = time.time()
     iter = 0
-    while iter < n_iter and time.time() - init_t < time_for_ending:
+    # while iter < n_iter and time.time() - init_t < time_for_ending:
+    while True:
 
         d, newidx, parentidx = G.randomPosition(BOARD_SHAPE[:2], gobs_4planning, radius)
         
@@ -128,6 +130,9 @@ def RRT_star(startpos, T, ground_obs, aerial_obs, radius, k_length, n_iter=2*10*
                     G.opt_cat = cat
                     G.opt_length = length
 
+                if G.distances[endidx] < 78:
+                    break
+
         # dist = euclidian_distance(newvex, G.endpos)
         # if dist < 2 * radius:
         #     endidx = G.add_vex(G.endpos)
@@ -137,8 +142,9 @@ def RRT_star(startpos, T, ground_obs, aerial_obs, radius, k_length, n_iter=2*10*
         #     except:
         #         G.distances[endidx] = G.distances[newidx]+dist
 
-            
         iter += 1
+
+    print("total time", time.time()-init_t)
 
     return G
 
@@ -242,7 +248,7 @@ def rrt_sequential(plotting=False):
     ground_obs = s["ground_obstacles"]
     aerial_obs = s["aerial_obstacles"]
     k_length=26
-    radius = 10
+    radius = 10**6
     
     tt = 0
     gpaths = []
@@ -251,11 +257,11 @@ def rrt_sequential(plotting=False):
     for i, T in enumerate(Ts):
         
         t = time.time()
-        G = RRT_star(S[:2],T,ground_obs,aerial_obs, radius, k_length, n_iter=10**4, time_for_ending=20)
+        G = RRT_star(S[:2],T,ground_obs,aerial_obs, radius, k_length, n_iter=10**6, time_for_ending=20)
         tt += time.time() - t
 
         ground_path, gpath_length = dijkstra(G, T)
-        print("gpath_length", gpath_length)
+        # print("gpath_length", gpath_length)
         if plotting:
             plot(G, ground_obs, ground_path)
 
@@ -268,11 +274,11 @@ def rrt_sequential(plotting=False):
         
         S = tuple([*optX[:2], 0])
         total_length += apath_length
-        print("apath_length", apath_length)
+        # print("apath_length", apath_length)
 
         if i < len(T)-1:
             total_length += apath_length
-            print("comeback apath_length", apath_length)
+            # print("comeback apath_length", apath_length)
 
 
     print(total_length, tt)
@@ -305,12 +311,12 @@ def example():
     S = scenario["S"]
     T = scenario["T"]
     a_obs, g_obs = scenario["aerial_obstacles"], scenario["ground_obstacles"] 
-    radius = 10 # RRT parameter
+    radius = 10**6 # RRT parameter
     k_length = 26
 
     tt = time.time()
-    G = RRT_star(S[:2], T, g_obs, a_obs, radius, k_length, n_iter=10**4, time_for_ending=20)
-    print("time for graph", time.time()-tt)
+    G = RRT_star(S[:2], T, g_obs, a_obs, radius, k_length, n_iter=10**6, time_for_ending=20)
+    # print("time for graph", time.time()-tt)
 
     if G.success:
         ground_path, gpath_length = dijkstra(G, T)
@@ -340,9 +346,9 @@ def example():
 
 if __name__ == '__main__':
 
-    # example()
+    example()
 
-    rrt_sequential(plotting=False)
+    # rrt_sequential(plotting=False)
                 
             
             

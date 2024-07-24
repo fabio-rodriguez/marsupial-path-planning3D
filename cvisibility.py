@@ -42,7 +42,7 @@ def get_tops_bf(T, g_obs, a_obs, p, q, k_length):
         tops_cat = {}
         for top in tops:
             minL = euclidian_distance(top, T)
-            cat_points, length, t = get_min_catenary_rectangles(top, T, vp["ground_obstacles"]+vp["aerial_obstacles"], minL, TETHER_LENGTH, k_length)
+            cat_points, length, t = get_min_catenary_rectangles(top, T, vp["ground_obstacles"]+vp["aerial_obstacles"], minL, TETHER_LENGTH, k_length, col2=True)
             tt += t
             # CHECKPOINT #  plot_3Dtether(top, T, cat_points, obstacles)
 

@@ -59,7 +59,7 @@ def plot3D(points, obstacles, path_to_output=None, tops=None, ground_paths=None,
             s = np.append(s, s[0])  # Here we cycle back to the first coordinate
             # ax.plot(pts[s, 0], pts[s, 1], pts[s, 2], "r-")
             verts = [list(zip(pts[s, 0],pts[s, 1],pts[s, 2]))]
-            ax.add_collection3d(Poly3DCollection(verts, alpha=0.1))
+            ax.add_collection3d(Poly3DCollection(verts, alpha=0.02))
 
         # Make axis label
         for i in ["x", "y", "z"]:
@@ -269,6 +269,9 @@ def plot_S1():
     with open("scenarios/S1_maspa.pkl", "rb") as f:
         maspa_sol = pkl.loads(f.read())
     
+    # print("maspa", maspa_sol)
+    # print("rrt", rrt_sol)
+
     S = maspa_sol["S"]
     T = maspa_sol["T"]
     ground_path = maspa_sol["ground_path"]
@@ -277,14 +280,15 @@ def plot_S1():
     figax = plot_optimal_solution(S, T, opt_ctop, ground_path, gobs, aobs, show=False)
 
     with open("scenarios/S1_rrt.pkl", "rb") as f:
-        maspa_sol = pkl.loads(f.read())
+        rrt_sol = pkl.loads(f.read())
     
-    S = maspa_sol["S"]
-    T = maspa_sol["T"]
-    ground_path = maspa_sol["ground_path"]
-    opt_ctop = maspa_sol["opt_ctop"]
+    # print("rrt", rrt_sol)
+
+    S = rrt_sol["S"]
+    T = rrt_sol["T"]
+    ground_path = rrt_sol["ground_path"]
+    opt_ctop = rrt_sol["opt_ctop"]
     
-    print(opt_ctop)
     plot_optimal_solution(S, T, opt_ctop, ground_path, gobs, aobs, marker="--", figax=figax)
 
 
@@ -299,7 +303,10 @@ def plot_S2():
         
     with open("scenarios/S3_maspa.pkl", "rb") as f:
         maspa_sol = pkl.loads(f.read())
-    
+
+    print("maspa_sol", maspa_sol)
+
+
     S = maspa_sol["S"]
     T = maspa_sol["Ts"][0]
     ground_path = maspa_sol["gpaths"][0]
@@ -316,6 +323,9 @@ def plot_S2():
 
     with open("scenarios/S3_rrt.pkl", "rb") as f:
         rrt_sol = pkl.loads(f.read())
+
+    print("rrt_sol", rrt_sol)
+    
     
     S = rrt_sol["S"]
     T = rrt_sol["Ts"][0]
@@ -326,16 +336,33 @@ def plot_S2():
 
     S = [*ground_path[-1], 0]
     T = rrt_sol["Ts"][1]
-    ground_path = rrt_sol["gpaths"][1]
+    ground_path = [S] + rrt_sol["gpaths"][1]
     opt_ctop = rrt_sol["opt_tops"][1]
     
-    plot_optimal_solution(S, T, opt_ctop, ground_path, gobs, aobs, marker="--", show=True, figax=figax)
+
+    plot3D([
+        {
+            "point":S, 
+            "label":"S", "color":"g"
+        }, 
+        {
+            "point":T, 
+            "label":"T", "color":"r"
+        }], 
+        gobs + aobs, 
+        tops=opt_ctop,
+        ground_paths=[ground_path],
+        show=True, 
+        marker="--",
+        figax = figax)
+    
+    # plot_optimal_solution(S, T, opt_ctop, ground_path, gobs, aobs, marker="--", show=True, figax=figax)
 
 
 
 
 if __name__ == "__main__":
     
-    # plot_S1()
+    plot_S1()
 
-    plot_S2()
+    # plot_S2()
