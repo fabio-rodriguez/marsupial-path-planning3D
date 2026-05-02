@@ -23,7 +23,9 @@ def get_cvisible_tops(T, g_obs, a_obs, p, q, k_length):
         tt += ti
 
         if cvis_tops != None:
-            tops3D.update(cvis_tops)        
+            tops3D.update(cvis_tops)  
+
+    print("tops:", len(tops3D))      
 
     return tops3D, tt
 
@@ -51,6 +53,7 @@ def get_tops_bf(T, g_obs, a_obs, p, q, k_length):
     
             tops3D.update(tops_cat)
 
+    print("tops:", len(tops3D))      
 
     return tops3D, tt
 
