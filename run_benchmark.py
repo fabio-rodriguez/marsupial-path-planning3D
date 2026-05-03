@@ -1,7 +1,7 @@
 '''
 MIT License
 Copyright (c) 2019 Fanjin Zeng
-This work is licensed under the terms of the MIT license, see <https://opensource.org/licenses/MIT>.  
+This work is licensed under the terms of the MIT license, see <https://opensource.org/licenses/MIT>.
 '''
 
 import matplotlib.pyplot as plt
@@ -82,17 +82,17 @@ class Graph:
 
     def randomPosition(self, board_shape, obstacles, radius):
 
-        deltaX, deltaY = board_shape         
+        deltaX, deltaY = board_shape
         while True:
             random_point = np.random.rand(2)-0.5
-            random_point[0] *= 2*deltaX 
+            random_point[0] *= 2*deltaX
             random_point[1] *= 2*deltaY
-        
+
             distances = []
             new_edges = []
             for node in self.vertices:
                 d = euclidian_distance(node, random_point)
-                if d <= radius:  
+                if d <= radius:
                     idx = self.get_id(node)
                     distances.append(d+self.distances[idx])
                     new_edges.append((node, random_point))
@@ -100,13 +100,13 @@ class Graph:
             items = sorted(zip(distances, new_edges), key=lambda x: x[0])
             for d, new_edge in items:
                 if is_visible(*new_edge, obstacles):
-                
-                    node_parent, new_node = new_edge 
+
+                    node_parent, new_node = new_edge
                     parentidx = self.get_id(node_parent)
                     newidx = self.add_vex(new_node)
 
                     return euclidian_distance(new_node, node_parent), newidx, parentidx
-                
+
 
 def _sample_uniform(board_shape):
     deltaX, deltaY = board_shape
@@ -432,19 +432,19 @@ def rrt_sequential(plotting=False):
     with open(path, "rb") as f:
         s = pkl.loads(f.read())
 
-    S = s["S"] 
-    Ts = s["T"]   
+    S = s["S"]
+    Ts = s["T"]
     ground_obs = s["ground_obstacles"]
     aerial_obs = s["aerial_obstacles"]
     k_length=26
     radius = 10**6
-    
+
     tt = 0
     gpaths = []
     opt_tops = []
     total_length = 0
     for i, T in enumerate(Ts):
-        
+
         t = time.time()
         G = RRT_star(S[:2],T,ground_obs,aerial_obs, radius, k_length, n_iter=10**6, time_for_ending=20)
         tt += time.time() - t
@@ -457,10 +457,10 @@ def rrt_sequential(plotting=False):
         total_length += gpath_length
         gpaths.append(ground_path)
         optX, cat, apath_length = ground_path[-1], G.opt_cat, G.opt_length
-        topX = tuple([*optX[:2], MARSUPIAL_HEIGHT-UAV_RADIUS]) 
+        topX = tuple([*optX[:2], MARSUPIAL_HEIGHT-UAV_RADIUS])
         opt_ctop = {topX: {"length":apath_length, "tether":cat}}
         opt_tops.append(opt_ctop)
-        
+
         S = tuple([*optX[:2], 0])
         total_length += apath_length
         # print("apath_length", apath_length)
@@ -493,13 +493,13 @@ def example():
     # # Best path resutls:
     # time for graph 20.010276794433594
     # total_path length 83.3471842895182
-    
+
     with open("scenarios/S2.pkl", "rb") as f:
         scenario = pkl.load(f)
 
     S = scenario["S"]
     T = scenario["T"]
-    a_obs, g_obs = scenario["aerial_obstacles"], scenario["ground_obstacles"] 
+    a_obs, g_obs = scenario["aerial_obstacles"], scenario["ground_obstacles"]
     radius = 10**6 # RRT parameter
     k_length = 26
 
@@ -512,7 +512,7 @@ def example():
         plot(G, g_obs, ground_path)
 
         optX, cat, apath_length = ground_path[-1], G.opt_cat, G.opt_length
-        topX = tuple([*optX[:2], MARSUPIAL_HEIGHT-UAV_RADIUS]) 
+        topX = tuple([*optX[:2], MARSUPIAL_HEIGHT-UAV_RADIUS])
         opt_ctop = {topX: {"length":apath_length, "tether":cat}}
         rrt_sol = {
             "S": S,
@@ -537,9 +537,10 @@ def run_benchmark():
     import os, contextlib
 
     SCENARIOS        = ["S2", "S3", "S5"]
-    TIME_CHECKPOINTS = [20, 40]
+    # SCENARIOS        = ["S3"]
+    TIME_CHECKPOINTS = [10, 20]
     N_RUNS           = 30
-    TOTAL_TIME       = 40   # seconds per (scenario, algorithm, run)
+    TOTAL_TIME       = 20   # seconds per (scenario, algorithm, run)
     k_length         = 26
     radius           = 10**6
 
@@ -593,22 +594,24 @@ def run_benchmark():
         time_offset = 0.0
         cost_offset = 0.0
 
-        for T in targets:
+        for i, T in enumerate(targets):
+            is_last = (i == len(targets) - 1)
             with open(os.devnull, "w") as devnull, contextlib.redirect_stdout(devnull):
                 G = _call(algo_key, S_cur, T, ground_obs, aerial_obs, time_per_target, board_shape)
 
-            # Shift local timestamps to global; add ll for the return tether trip
+            # Return trip only for non-last targets (drone comes back to UGV)
             for (lt, lc, ll) in G._improve_log:
-                global_log.append((time_offset + lt, cost_offset + lc + ll, ll))
+                return_leg = 0 if is_last else ll
+                global_log.append((time_offset + lt, cost_offset + lc + return_leg, ll))
 
             if not G.success:
                 break   # subsequent targets cannot be reached
 
-            # best_entry_at gives (cost, aerial) so we can add the return leg
             entry = best_entry_at(G._improve_log, time_per_target)
             if entry is None:
                 break
-            cost_offset += entry[0] + entry[1]  # ground + 2×aerial (round trip)
+            return_leg = 0 if is_last else entry[1]
+            cost_offset += entry[0] + return_leg
             time_offset += time_per_target
 
             # Advance UGV start to the tether-anchor ground position
@@ -693,6 +696,5 @@ if __name__ == '__main__':
 
     # example()
     # rrt_sequential(plotting=False)
-                
-            
-            
+
+

@@ -165,8 +165,8 @@ def maspa_sequential(plot=False, visibility=None):
     opt_tops = []
     total_length = 0
     for i, T in enumerate(Ts):
-        ground_path, opt_info, t, visibility = path_planning_smpp(S, T, ground_obs, aerial_obs, p=p, q=q, k_length=k_length, plot=plot, visibility=visibility)
-        # ground_path, opt_info, t, visibility = path_planning_bf(S, T, ground_obs, aerial_obs, p=p, q=q, k_length=k_length, plot=plot, visibility=visibility)
+        # ground_path, opt_info, t, visibility = path_planning_smpp(S, T, ground_obs, aerial_obs, p=p, q=q, k_length=k_length, plot=plot, visibility=visibility)
+        ground_path, opt_info, t, visibility = path_planning_bf(S, T, ground_obs, aerial_obs, p=p, q=q, k_length=k_length, plot=plot, visibility=visibility)
         
         tt += t
         gpaths.append(ground_path)
@@ -212,7 +212,7 @@ def path_length(path):
 
 def example():
     
-    path = "scenarios/S5.pkl"
+    path = "scenarios/S2.pkl"
 
     with open(path, "rb") as f:
         s = pkl.loads(f.read())

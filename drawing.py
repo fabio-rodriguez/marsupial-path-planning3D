@@ -22,7 +22,7 @@ def plot_scenario(scenario, path=None):
         scenario["ground_obstacles"]+scenario["aerial_obstacles"], path_to_output=path)
 
 
-def plot_scenario_multitarget(scenario, path=None):
+def plot_scenario_multitarget(scenario, path=None, show=False):
     
     targets = [
         {
@@ -35,7 +35,7 @@ def plot_scenario_multitarget(scenario, path=None):
             "point":scenario["S"], 
             "label":"S", "color":"k"
         }] + targets, 
-        scenario["ground_obstacles"]+scenario["aerial_obstacles"], path_to_output=path)
+        scenario["ground_obstacles"]+scenario["aerial_obstacles"], path_to_output=path, show=show)
 
 
 def plot3D(points, obstacles, path_to_output=None, tops=None, ground_paths=None, show=None, marker=None, figax=None):

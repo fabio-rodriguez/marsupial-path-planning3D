@@ -232,24 +232,34 @@ def generate_S3(path):
     walla8 = walla6 + np.array([45+EPSILON,0,0])
 
     gobs = [wallg1, wallg2, wallg3, wallg4, squareg1]
-    aobs = [squarea1, balcony1, balcony2,  walla2,  walla4, walla5, walla6, walla7, walla8]
+    aobs = [squarea1, balcony1, balcony2,  walla2,  walla4, walla5, walla6, walla7, walla8,]
+            # walla9, walla10, walla11, walla12]
 
     # extra aerial walls
     walla9 = np.array([
-        [wall_thick+EPSILON,20,8*h], [5-EPSILON,20,8*h],
-        [wall_thick+EPSILON,20+wall_thick,8*h], [5-EPSILON,20+wall_thick,8*h],
-        [wall_thick+EPSILON,20,12*h], [5-EPSILON,20,12*h],
-        [wall_thick+EPSILON,20+wall_thick,12*h], [5-EPSILON,20+wall_thick,12*h],
+        [-10+EPSILON,20,wall_thick+8*h+EPSILON], [5-EPSILON,20,wall_thick+8*h+EPSILON],
+        [-10+EPSILON,20+wall_thick,wall_thick+8*h+EPSILON], [5-EPSILON,20+wall_thick,wall_thick+8*h+EPSILON],
+        [-10+EPSILON,20,8*h + 2*wall_thick], [5-EPSILON,20,8*h + 2*wall_thick],
+        [-10+EPSILON,20+wall_thick,8*h + 2*wall_thick], [5-EPSILON,20+wall_thick,8*h + 2*wall_thick],
     ])
     walla10 = walla9 + np.array([0,30-wall_thick,0]) 
-    walla11 = walla9 + np.array([65-wall_thick,0,0])
+    walla11 = walla9 + np.array([75+EPSILON,0,0])
     walla12 = walla11 + np.array([0,30-wall_thick,0])
-
 
     aobs += [walla9, walla10, walla11, walla12]
 
+    # walla13 = np.array([
+    #     [5,20,8*h+wall_thick+EPSILON], [20-EPSILON,20,8*h+wall_thick+EPSILON], [5,20+wall_thick,8*h+wall_thick+EPSILON], [20-EPSILON,20+wall_thick,8*h+wall_thick+EPSILON],   
+    #     [5,20,12*h], [20-EPSILON,20,12*h], [5,20+wall_thick,12*h], [20-EPSILON,20+wall_thick,12*h],   
+    # ])
+    # walla14 = walla13 + np.array([0,30-wall_thick, 0])
+    # walla15 = walla13 + np.array([45+EPSILON,0,0])
+    # walla16 = walla14 + np.array([45+EPSILON,0,0])
 
-    S = (10,-50,0)
+    # aobs += [walla13, walla14, walla15, walla16]
+
+
+    S = (-10,-40,0)
     T1 = (6,30, 12*h)
     T2 = (64,30, 12*h)
     
@@ -267,7 +277,9 @@ def generate_S3(path):
     with open(path, "rb") as f:
         s = pkl.loads(f.read())
 
-    plot_scenario_multitarget(s, "images/S3.png")
+    
+    plot_scenario_multitarget(s, "images/S3.png", show=True)
+
 
 
 
@@ -540,8 +552,8 @@ if __name__ == "__main__":
     
     # generate_S1("scenarios/S1.pkl")
     # generate_S2("scenarios/S2.pkl")
-    # generate_S3("scenarios/S3.pkl")
-    generate_S5("scenarios/S5.pkl")
+    generate_S3("scenarios/S3.pkl")
+    # generate_S5("scenarios/S5.pkl")
 
     n = 1000
     ground_n = 10 
